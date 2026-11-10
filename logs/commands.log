@@ -7,3 +7,10 @@
 2026-11-09 21:35:30 | python3 -m look_decomposer.make_base_plate
 2026-11-09 21:35:30 | python3 -m look_decomposer.generate_test_stills
 2026-11-09 21:35:30 | python3 -m look_decomposer.build test_stills/looks/noir.json
+2026-11-09 22:02:14 | rm -rf .calib (re-render calibration after sweep changes)
+2026-11-09 22:02:35 | python3 -m look_decomposer.calibrate (full re-render: 155 frames, new levels+tint sweeps)
+2026-11-09 22:07:07 | python3 -m look_decomposer.calibrate (re-measure with reference-masked region stats)
+2026-11-09 22:11:40 | python3 -m look_decomposer.calibrate && python3 -m look_decomposer.score
+2026-11-09 22:14:56 | python3 -m look_decomposer.score (neutral-value scoring fix)
+2026-11-09 22:21:08 | python3 -m look_decomposer.score (joint vig/glow fit + WB refinement + sat-guard)
+2026-11-09 22:25:48 | python3 -m look_decomposer.score (levels-corrected radial, split feedback loop, gamma bar 0.95)

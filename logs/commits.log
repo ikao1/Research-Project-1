@@ -123,3 +123,71 @@ A	test_stills/renders/teal_orange.png
 A	test_stills/renders/vhs.png
 A	test_stills/renders/warm_sunset.png
 
+==================================================================
+Date:    2026-11-10 01:31:30
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Add Look Decomposer analyzer, After Effects panel, auto masks, and guide
+Files:
+M	.gitignore
+M	docs/schema.md
+M	logs/commands.log
+M	look_decomposer/README.md
+A	look_decomposer/ae_panel/LookDecomposer.jsx
+A	look_decomposer/ae_panel/icons/area.png
+A	look_decomposer/ae_panel/icons/black_point.png
+A	look_decomposer/ae_panel/icons/blacks.png
+A	look_decomposer/ae_panel/icons/blend.png
+A	look_decomposer/ae_panel/icons/blur.png
+A	look_decomposer/ae_panel/icons/contrast.png
+A	look_decomposer/ae_panel/icons/drop.png
+A	look_decomposer/ae_panel/icons/edge_soft.png
+A	look_decomposer/ae_panel/icons/faded_blacks.png
+A	look_decomposer/ae_panel/icons/gauge.png
+A	look_decomposer/ae_panel/icons/glow.png
+A	look_decomposer/ae_panel/icons/grain.png
+A	look_decomposer/ae_panel/icons/grow.png
+A	look_decomposer/ae_panel/icons/highlights.png
+A	look_decomposer/ae_panel/icons/hue_shift.png
+A	look_decomposer/ae_panel/icons/mix.png
+A	look_decomposer/ae_panel/icons/move_h.png
+A	look_decomposer/ae_panel/icons/move_v.png
+A	look_decomposer/ae_panel/icons/opacity.png
+A	look_decomposer/ae_panel/icons/shadows.png
+A	look_decomposer/ae_panel/icons/sharpen.png
+A	look_decomposer/ae_panel/icons/split_tone.png
+A	look_decomposer/ae_panel/icons/sun.png
+A	look_decomposer/ae_panel/icons/thermometer.png
+A	look_decomposer/ae_panel/icons/tint.png
+A	look_decomposer/ae_panel/icons/value_half.png
+A	look_decomposer/ae_panel/icons/vibrance.png
+A	look_decomposer/ae_panel/icons/vignette.png
+A	look_decomposer/ae_panel/icons/white_point.png
+A	look_decomposer/ae_panel/icons/whites.png
+A	look_decomposer/analyzer.py
+A	look_decomposer/automask.py
+A	look_decomposer/calibrate.py
+A	look_decomposer/calibration.json
+M	look_decomposer/generate_test_stills.py
+A	look_decomposer/guide.py
+A	look_decomposer/install_panel.py
+M	look_decomposer/schema/analysis.schema.json
+A	look_decomposer/score.py
+A	look_decomposer/stats.py
+A	look_decomposer/tools/automask_vision.swift
+A	look_decomposer/tools/make_icons.py
+M	look_decomposer/validate.py
+M	test_stills/looks/bleach_bypass.json
+M	test_stills/looks/filmic_faded.json
+M	test_stills/looks/moody_blue.json
+M	test_stills/looks/noir.json
+M	test_stills/looks/vhs.json
+M	test_stills/looks/warm_sunset.json
+M	test_stills/renders/bleach_bypass.png
+M	test_stills/renders/filmic_faded.png
+M	test_stills/renders/moody_blue.png
+M	test_stills/renders/noir.png
+M	test_stills/renders/vhs.png
+M	test_stills/renders/warm_sunset.png
+A	test_stills/scores.json
+

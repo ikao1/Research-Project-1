@@ -37,7 +37,7 @@ carries an optional `confidence` (0..1).
 | 5 | `split_tone` | Tint | `shadows_hex`, `highlights_hex` (`#rrggbb`), `strength` (0..100) |
 | 6 | `blur` | Gaussian Blur | `radius_px` (0..500) |
 | 7 | `glow` | Glow | `threshold` (0..255), `radius_px`, `intensity` (0..100) |
-| 8 | `vignette` | Lumetri Color (Vignette) | `amount` (-5..5), `midpoint` (0..100), `roundness` (-100..100), `feather` (0..100) |
+| 8 | `vignette` | Lumetri Color (Vignette) | `amount` (-5..5, negative darkens edges / positive brightens — verified on AE 26.5), `midpoint` (0..100), `roundness` (-100..100), `feather` (0..100) |
 | 9 | `grain` | Noise | `amount` (0..100), `monochrome` (bool) |
 
 ## Slider controls

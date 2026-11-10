@@ -25,7 +25,7 @@
       "confidence": 1.0
     },
     "vignette": {
-      "amount": 1.0,
+      "amount": -1.0,
       "confidence": 1.0
     }
   },

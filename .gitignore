@@ -22,3 +22,9 @@ venv/
 
 # Local environment
 .env
+
+# Look Decomposer calibration renders
+.calib/
+
+# Built Vision helper (machine-specific; rebuild with: python3 -m look_decomposer.automask --build)
+look_decomposer/bin/

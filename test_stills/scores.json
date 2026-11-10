@@ -1,0 +1,717 @@
+{
+  "bleach_bypass": {
+    "mean_error": 0.031,
+    "fields": {
+      "grain.amount": 0.003,
+      "levels.input_black": 0.0,
+      "levels.input_white": 0.0,
+      "levels.output_black": 0.0,
+      "levels.output_white": 0.0,
+      "saturation.amount": 0.07,
+      "vignette.amount": 0.02,
+      "white_balance.temperature": 0.15,
+      "white_balance.tint": 0.04
+    },
+    "predicted": {
+      "schema_version": "1.0",
+      "name": "bleach_bypass",
+      "source": {
+        "path": "/Users/ikao1/Desktop/Research Project 1/test_stills/renders/bleach_bypass.png",
+        "type": "image",
+        "width": 1280,
+        "height": 720,
+        "frames": null
+      },
+      "look": {
+        "grain": {
+          "amount": 17.7,
+          "monochrome": true
+        },
+        "vignette": {
+          "amount": -1.06
+        },
+        "levels": {
+          "input_black": 0.08,
+          "input_white": 0.92,
+          "output_black": 0.04,
+          "output_white": 0.96
+        },
+        "white_balance": {
+          "temperature": -15,
+          "tint": -4
+        },
+        "saturation": {
+          "amount": -67
+        }
+      },
+      "notes": [
+        {
+          "topic": "grain",
+          "message": "Adjacent-pixel noise measured 0.037 (color noise not detected); inverting the AE Noise calibration curve gives amount 18, monochrome. Grain is stochastic, expect a few units of slack.",
+          "confidence": 0.65
+        },
+        {
+          "topic": "vignette",
+          "message": "The joint tone fit places the vignette at -1.06. The raw corner/center ratio alone suggested -1.56, but grain clipping, levels crush and glow bloom bias that reading; the fit reconciles it with the histogram. Negative darkens the edges.",
+          "confidence": 0.65
+        },
+        {
+          "topic": "levels",
+          "message": "The quantile curve also fits a Levels remap of input [0.080, 0.920] to output [0.040, 0.960]. Output fades (black lift / white ceiling) and input contrast show up here; grain smears the extremes, so check the Levels histogram in AE.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "white_balance",
+          "message": "Mid-tone channel balance (region fixed by the reference, so split toning does not leak in) places temperature at -15 and tint at -4 (grid refined continuously, expect +-5). Saturation is divided out first.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "saturation",
+          "message": "Mid-tone chroma is corrected for white-balance chroma gain and the levels/exposure slope, then inverted through the saturation calibration curve: amount -67.",
+          "confidence": 0.6
+        }
+      ],
+      "overall_confidence": 0.62
+    }
+  },
+  "filmic_faded": {
+    "mean_error": 0.145,
+    "fields": {
+      "exposure.stops": 0.67,
+      "grain.amount": 0.003,
+      "levels.input_black": 0.0,
+      "levels.input_white": 0.48,
+      "levels.output_black": 0.0,
+      "levels.output_white": 0.12,
+      "saturation.amount": 0.15,
+      "vignette.amount": 0.01,
+      "white_balance.temperature": 0.02,
+      "white_balance.tint": 0.0
+    },
+    "predicted": {
+      "schema_version": "1.0",
+      "name": "filmic_faded",
+      "source": {
+        "path": "/Users/ikao1/Desktop/Research Project 1/test_stills/renders/filmic_faded.png",
+        "type": "image",
+        "width": 1280,
+        "height": 720,
+        "frames": null
+      },
+      "look": {
+        "grain": {
+          "amount": 14.3,
+          "monochrome": true
+        },
+        "vignette": {
+          "amount": -0.57
+        },
+        "levels": {
+          "input_black": 0.0,
+          "input_white": 0.88,
+          "output_black": 0.09,
+          "output_white": 1.0
+        },
+        "exposure": {
+          "stops": -0.67
+        },
+        "white_balance": {
+          "temperature": 10,
+          "tint": 0
+        },
+        "saturation": {
+          "amount": -23
+        }
+      },
+      "notes": [
+        {
+          "topic": "grain",
+          "message": "Adjacent-pixel noise measured 0.030 (color noise not detected); inverting the AE Noise calibration curve gives amount 14, monochrome. Grain is stochastic, expect a few units of slack.",
+          "confidence": 0.65
+        },
+        {
+          "topic": "vignette",
+          "message": "The joint tone fit places the vignette at -0.57. The raw corner/center ratio alone suggested -0.32, but grain clipping, levels crush and glow bloom bias that reading; the fit reconciles it with the histogram. Negative darkens the edges.",
+          "confidence": 0.65
+        },
+        {
+          "topic": "levels",
+          "message": "The quantile curve also fits a Levels remap of input [0.000, 0.880] to output [0.090, 1.000]. Output fades (black lift / white ceiling) and input contrast show up here; grain smears the extremes, so check the Levels histogram in AE.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "white_balance",
+          "message": "Mid-tone channel balance (region fixed by the reference, so split toning does not leak in) places temperature at 10 and tint at 0 (grid refined continuously, expect +-5). Saturation is divided out first.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "saturation",
+          "message": "Mid-tone chroma is corrected for white-balance chroma gain and the levels/exposure slope, then inverted through the saturation calibration curve: amount -23.",
+          "confidence": 0.6
+        }
+      ],
+      "overall_confidence": 0.62
+    }
+  },
+  "high_key": {
+    "mean_error": 0.098,
+    "fields": {
+      "exposure.gamma": 0.3,
+      "exposure.stops": 0.08,
+      "levels.input_black": 0.16,
+      "levels.input_white": 0.04,
+      "levels.output_black": 0.0,
+      "levels.output_white": 0.0,
+      "saturation.amount": 0.2,
+      "white_balance.temperature": 0.1,
+      "white_balance.tint": 0.0
+    },
+    "predicted": {
+      "schema_version": "1.0",
+      "name": "high_key",
+      "source": {
+        "path": "/Users/ikao1/Desktop/Research Project 1/test_stills/renders/high_key.png",
+        "type": "image",
+        "width": 1280,
+        "height": 720,
+        "frames": null
+      },
+      "look": {
+        "exposure": {
+          "stops": 0.62
+        },
+        "levels": {
+          "input_black": 0.04,
+          "input_white": 0.96,
+          "output_black": 0.0,
+          "output_white": 1.0
+        },
+        "white_balance": {
+          "temperature": 10,
+          "tint": 0
+        },
+        "saturation": {
+          "amount": 28
+        }
+      },
+      "notes": [
+        {
+          "topic": "exposure",
+          "message": "A joint fit of the luminance quantile curve (searching vignette and glow alongside exposure/levels so bloom and corner falloff are not absorbed here) puts exposure at 0.62 stops. The AE Exposure response is calibrated, not 2^stops, so trust this number.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "levels",
+          "message": "The quantile curve also fits a Levels remap of input [0.040, 0.960] to output [0.000, 1.000]. Output fades (black lift / white ceiling) and input contrast show up here; grain smears the extremes, so check the Levels histogram in AE.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "white_balance",
+          "message": "Mid-tone channel balance (region fixed by the reference, so split toning does not leak in) places temperature at 10 and tint at 0 (grid refined continuously, expect +-5). Saturation is divided out first.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "saturation",
+          "message": "Mid-tone chroma is corrected for white-balance chroma gain and the levels/exposure slope, then inverted through the saturation calibration curve: amount 28.",
+          "confidence": 0.6
+        }
+      ],
+      "overall_confidence": 0.6
+    }
+  },
+  "moody_blue": {
+    "mean_error": 0.159,
+    "fields": {
+      "exposure.stops": 0.21,
+      "glow.intensity": 0.433,
+      "grain.amount": 0.0,
+      "levels.input_black": 0.08,
+      "levels.input_white": 0.08,
+      "levels.output_black": 0.12,
+      "levels.output_white": 0.08,
+      "saturation.amount": 0.15,
+      "vignette.amount": 0.367,
+      "white_balance.temperature": 0.2,
+      "white_balance.tint": 0.03
+    },
+    "predicted": {
+      "schema_version": "1.0",
+      "name": "moody_blue",
+      "source": {
+        "path": "/Users/ikao1/Desktop/Research Project 1/test_stills/renders/moody_blue.png",
+        "type": "image",
+        "width": 1280,
+        "height": 720,
+        "frames": null
+      },
+      "look": {
+        "grain": {
+          "amount": 10.0,
+          "monochrome": true
+        },
+        "vignette": {
+          "amount": -1.1
+        },
+        "glow": {
+          "threshold": 180,
+          "radius_px": 15,
+          "intensity": 0.65
+        },
+        "exposure": {
+          "stops": -0.21
+        },
+        "levels": {
+          "input_black": 0.12,
+          "input_white": 0.98,
+          "output_black": 0.03,
+          "output_white": 0.98
+        },
+        "white_balance": {
+          "temperature": -50,
+          "tint": -8
+        },
+        "saturation": {
+          "amount": -35
+        }
+      },
+      "notes": [
+        {
+          "topic": "grain",
+          "message": "Adjacent-pixel noise measured 0.021 (color noise not detected); inverting the AE Noise calibration curve gives amount 10, monochrome. Grain is stochastic, expect a few units of slack.",
+          "confidence": 0.65
+        },
+        {
+          "topic": "vignette",
+          "message": "The joint tone fit places the vignette at -1.10. The raw corner/center ratio alone suggested -3.00, but grain clipping, levels crush and glow bloom bias that reading; the fit reconciles it with the histogram. Negative darkens the edges.",
+          "confidence": 0.65
+        },
+        {
+          "topic": "glow",
+          "message": "Top-band bloom beyond what exposure and levels can explain fits Glow intensity 0.65 (calibrated at threshold 180, radius 15; those two are defaults, tune by eye).",
+          "confidence": 0.5
+        },
+        {
+          "topic": "exposure",
+          "message": "A joint fit of the luminance quantile curve (searching vignette and glow alongside exposure/levels so bloom and corner falloff are not absorbed here) puts exposure at -0.21 stops. The AE Exposure response is calibrated, not 2^stops, so trust this number.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "levels",
+          "message": "The quantile curve also fits a Levels remap of input [0.120, 0.980] to output [0.030, 0.980]. Output fades (black lift / white ceiling) and input contrast show up here; grain smears the extremes, so check the Levels histogram in AE.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "white_balance",
+          "message": "Mid-tone channel balance (region fixed by the reference, so split toning does not leak in) places temperature at -50 and tint at -8 (grid refined continuously, expect +-5). Saturation is divided out first.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "saturation",
+          "message": "Mid-tone chroma is corrected for white-balance chroma gain and the levels/exposure slope, then inverted through the saturation calibration curve: amount -35.",
+          "confidence": 0.6
+        }
+      ],
+      "overall_confidence": 0.6
+    }
+  },
+  "natural_reference": {
+    "mean_error": 0.037,
+    "fields": {
+      "levels.input_black": 0.0,
+      "levels.input_white": 0.08,
+      "levels.output_black": 0.0,
+      "levels.output_white": 0.08,
+      "white_balance.temperature": 0.04,
+      "white_balance.tint": 0.02
+    },
+    "predicted": {
+      "schema_version": "1.0",
+      "name": "natural_reference",
+      "source": {
+        "path": "/Users/ikao1/Desktop/Research Project 1/test_stills/renders/natural_reference.png",
+        "type": "image",
+        "width": 1280,
+        "height": 720,
+        "frames": null
+      },
+      "look": {
+        "levels": {
+          "input_black": 0.0,
+          "input_white": 0.98,
+          "output_black": 0.0,
+          "output_white": 0.98
+        }
+      },
+      "notes": [
+        {
+          "topic": "levels",
+          "message": "The quantile curve also fits a Levels remap of input [0.000, 0.980] to output [0.000, 0.980]. Output fades (black lift / white ceiling) and input contrast show up here; grain smears the extremes, so check the Levels histogram in AE.",
+          "confidence": 0.6
+        }
+      ],
+      "overall_confidence": 0.6
+    }
+  },
+  "noir": {
+    "mean_error": 0.103,
+    "fields": {
+      "exposure.stops": 0.1,
+      "grain.amount": 0.0,
+      "levels.input_black": 0.0,
+      "levels.input_white": 0.08,
+      "levels.output_black": 0.12,
+      "levels.output_white": 0.16,
+      "saturation.amount": 0.0,
+      "vignette.amount": 0.367
+    },
+    "predicted": {
+      "schema_version": "1.0",
+      "name": "noir",
+      "source": {
+        "path": "/Users/ikao1/Desktop/Research Project 1/test_stills/renders/noir.png",
+        "type": "image",
+        "width": 1280,
+        "height": 720,
+        "frames": null
+      },
+      "look": {
+        "grain": {
+          "amount": 30.0,
+          "monochrome": true
+        },
+        "vignette": {
+          "amount": -1.9
+        },
+        "levels": {
+          "input_black": 0.12,
+          "input_white": 0.92,
+          "output_black": 0.03,
+          "output_white": 0.96
+        },
+        "saturation": {
+          "amount": -100
+        }
+      },
+      "notes": [
+        {
+          "topic": "grain",
+          "message": "Adjacent-pixel noise measured 0.061 (color noise not detected); inverting the AE Noise calibration curve gives amount 30, monochrome. Grain is stochastic, expect a few units of slack.",
+          "confidence": 0.65
+        },
+        {
+          "topic": "vignette",
+          "message": "The joint tone fit places the vignette at -1.90. The raw corner/center ratio alone suggested -3.00, but grain clipping, levels crush and glow bloom bias that reading; the fit reconciles it with the histogram. Negative darkens the edges.",
+          "confidence": 0.65
+        },
+        {
+          "topic": "levels",
+          "message": "The quantile curve also fits a Levels remap of input [0.120, 0.920] to output [0.030, 0.960]. Output fades (black lift / white ceiling) and input contrast show up here; grain smears the extremes, so check the Levels histogram in AE.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "saturation",
+          "message": "Mid-tone chroma is corrected for white-balance chroma gain and the levels/exposure slope, then inverted through the saturation calibration curve: amount -100.",
+          "confidence": 0.6
+        }
+      ],
+      "overall_confidence": 0.62
+    }
+  },
+  "soft_dreamy": {
+    "mean_error": 0.229,
+    "fields": {
+      "blur.radius_px": 0.075,
+      "exposure.stops": 0.63,
+      "glow.intensity": 0.6,
+      "levels.input_black": 0.4,
+      "levels.input_white": 0.16,
+      "levels.output_black": 0.24,
+      "levels.output_white": 0.0,
+      "saturation.amount": 0.12,
+      "white_balance.temperature": 0.07,
+      "white_balance.tint": 0.0
+    },
+    "predicted": {
+      "schema_version": "1.0",
+      "name": "soft_dreamy",
+      "source": {
+        "path": "/Users/ikao1/Desktop/Research Project 1/test_stills/renders/soft_dreamy.png",
+        "type": "image",
+        "width": 1280,
+        "height": 720,
+        "frames": null
+      },
+      "look": {
+        "blur": {
+          "radius_px": 3.8
+        },
+        "exposure": {
+          "stops": 0.78
+        },
+        "levels": {
+          "input_black": 0.1,
+          "input_white": 0.96,
+          "output_black": 0.06,
+          "output_white": 1.0
+        },
+        "white_balance": {
+          "temperature": 15,
+          "tint": 0
+        }
+      },
+      "notes": [
+        {
+          "topic": "blur",
+          "message": "High-frequency energy in detail regions is 20% of the reference; the Gaussian Blur calibration curve maps that to a 3.8 px radius. Blur under ~1.5 px is below what the metric resolves, so small radii are not reported.",
+          "confidence": 0.5
+        },
+        {
+          "topic": "exposure",
+          "message": "A joint fit of the luminance quantile curve (searching vignette and glow alongside exposure/levels so bloom and corner falloff are not absorbed here) puts exposure at 0.78 stops. The AE Exposure response is calibrated, not 2^stops, so trust this number.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "levels",
+          "message": "The quantile curve also fits a Levels remap of input [0.100, 0.960] to output [0.060, 1.000]. Output fades (black lift / white ceiling) and input contrast show up here; grain smears the extremes, so check the Levels histogram in AE.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "white_balance",
+          "message": "Mid-tone channel balance (region fixed by the reference, so split toning does not leak in) places temperature at 15 and tint at 0 (grid refined continuously, expect +-5). Saturation is divided out first.",
+          "confidence": 0.6
+        }
+      ],
+      "overall_confidence": 0.57
+    }
+  },
+  "teal_orange": {
+    "mean_error": 0.255,
+    "fields": {
+      "exposure.stops": 0.31,
+      "levels.input_black": 0.0,
+      "levels.input_white": 0.24,
+      "levels.output_black": 0.36,
+      "levels.output_white": 0.32,
+      "saturation.amount": 0.75,
+      "split_tone.strength": 0.28,
+      "white_balance.temperature": 0.05,
+      "white_balance.tint": 0.08,
+      "split_tone.shadows_hex": 0.165
+    },
+    "predicted": {
+      "schema_version": "1.0",
+      "name": "teal_orange",
+      "source": {
+        "path": "/Users/ikao1/Desktop/Research Project 1/test_stills/renders/teal_orange.png",
+        "type": "image",
+        "width": 1280,
+        "height": 720,
+        "frames": null
+      },
+      "look": {
+        "exposure": {
+          "stops": 0.31
+        },
+        "levels": {
+          "input_black": 0.06,
+          "input_white": 1.0,
+          "output_black": 0.09,
+          "output_white": 0.92
+        },
+        "white_balance": {
+          "temperature": -5,
+          "tint": -8
+        },
+        "saturation": {
+          "amount": 85
+        },
+        "split_tone": {
+          "shadows_hex": "#000109",
+          "highlights_hex": "#ffdcbe",
+          "strength": 73
+        }
+      },
+      "notes": [
+        {
+          "topic": "exposure",
+          "message": "A joint fit of the luminance quantile curve (searching vignette and glow alongside exposure/levels so bloom and corner falloff are not absorbed here) puts exposure at 0.31 stops. The AE Exposure response is calibrated, not 2^stops, so trust this number.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "levels",
+          "message": "The quantile curve also fits a Levels remap of input [0.060, 1.000] to output [0.090, 0.920]. Output fades (black lift / white ceiling) and input contrast show up here; grain smears the extremes, so check the Levels histogram in AE.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "white_balance",
+          "message": "Mid-tone channel balance (region fixed by the reference, so split toning does not leak in) places temperature at -5 and tint at -8 (grid refined continuously, expect +-5). Saturation is divided out first.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "saturation",
+          "message": "Mid-tone chroma is corrected for white-balance chroma gain and the levels/exposure slope, then inverted through the saturation calibration curve: amount 85.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "split_tone",
+          "message": "Region-color drift (dark 0.041, mid 0.398, bright 0.209, after correcting for every other estimated effect) solves jointly for Tint strength 73 with tone colors #000109 -> #ffdcbe; the tone curve is then fed back into the tone fit so it does not masquerade as a Levels fade. Strength and tone saturation trade off (drift = strength x tone distance), so this is the least determined aspect \u2014 treat the colors as starting points.",
+          "confidence": 0.35
+        }
+      ],
+      "overall_confidence": 0.55
+    }
+  },
+  "vhs": {
+    "mean_error": 0.208,
+    "fields": {
+      "blur.radius_px": 0.3,
+      "exposure.stops": 0.29,
+      "grain.amount": 0.003,
+      "levels.input_black": 0.0,
+      "levels.input_white": 0.48,
+      "levels.output_black": 0.12,
+      "levels.output_white": 0.32,
+      "saturation.amount": 0.35,
+      "split_tone.strength": 0.2,
+      "vignette.amount": 0.057,
+      "split_tone.shadows_hex": 0.164
+    },
+    "predicted": {
+      "schema_version": "1.0",
+      "name": "vhs",
+      "source": {
+        "path": "/Users/ikao1/Desktop/Research Project 1/test_stills/renders/vhs.png",
+        "type": "image",
+        "width": 1280,
+        "height": 720,
+        "frames": null
+      },
+      "look": {
+        "grain": {
+          "amount": 34.7,
+          "monochrome": false
+        },
+        "vignette": {
+          "amount": -0.63
+        },
+        "exposure": {
+          "stops": -0.19
+        },
+        "levels": {
+          "input_black": 0.0,
+          "input_white": 0.88,
+          "output_black": 0.03,
+          "output_white": 0.92
+        },
+        "split_tone": {
+          "shadows_hex": "#0a0b14",
+          "highlights_hex": "#fdf4de",
+          "strength": 50
+        }
+      },
+      "notes": [
+        {
+          "topic": "grain",
+          "message": "Adjacent-pixel noise measured 0.053 (color noise detected); inverting the AE Noise calibration curve gives amount 35, color. Grain is stochastic, expect a few units of slack.",
+          "confidence": 0.65
+        },
+        {
+          "topic": "vignette",
+          "message": "The joint tone fit places the vignette at -0.63. The raw corner/center ratio alone suggested -0.48, but grain clipping, levels crush and glow bloom bias that reading; the fit reconciles it with the histogram. Negative darkens the edges.",
+          "confidence": 0.65
+        },
+        {
+          "topic": "exposure",
+          "message": "A joint fit of the luminance quantile curve (searching vignette and glow alongside exposure/levels so bloom and corner falloff are not absorbed here) puts exposure at -0.19 stops. The AE Exposure response is calibrated, not 2^stops, so trust this number.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "levels",
+          "message": "The quantile curve also fits a Levels remap of input [0.000, 0.880] to output [0.030, 0.920]. Output fades (black lift / white ceiling) and input contrast show up here; grain smears the extremes, so check the Levels histogram in AE.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "split_tone",
+          "message": "Region-color drift (dark 0.036, mid 0.090, bright 0.057, after correcting for every other estimated effect) solves jointly for Tint strength 50 with tone colors #0a0b14 -> #fdf4de; the tone curve is then fed back into the tone fit so it does not masquerade as a Levels fade. Strength and tone saturation trade off (drift = strength x tone distance), so this is the least determined aspect \u2014 treat the colors as starting points.",
+          "confidence": 0.35
+        }
+      ],
+      "overall_confidence": 0.57
+    }
+  },
+  "warm_sunset": {
+    "mean_error": 0.236,
+    "fields": {
+      "exposure.stops": 0.3,
+      "glow.intensity": 0.4,
+      "levels.input_black": 0.32,
+      "levels.input_white": 0.48,
+      "levels.output_black": 0.04,
+      "levels.output_white": 0.0,
+      "saturation.amount": 0.19,
+      "vignette.amount": 0.397,
+      "white_balance.temperature": 0.15,
+      "white_balance.tint": 0.08
+    },
+    "predicted": {
+      "schema_version": "1.0",
+      "name": "warm_sunset",
+      "source": {
+        "path": "/Users/ikao1/Desktop/Research Project 1/test_stills/renders/warm_sunset.png",
+        "type": "image",
+        "width": 1280,
+        "height": 720,
+        "frames": null
+      },
+      "look": {
+        "vignette": {
+          "amount": -0.31
+        },
+        "exposure": {
+          "stops": 0.6
+        },
+        "levels": {
+          "input_black": 0.08,
+          "input_white": 0.88,
+          "output_black": 0.01,
+          "output_white": 1.0
+        },
+        "white_balance": {
+          "temperature": 50,
+          "tint": 8
+        },
+        "saturation": {
+          "amount": 34
+        }
+      },
+      "notes": [
+        {
+          "topic": "vignette",
+          "message": "The joint tone fit places the vignette at -0.31. The raw corner/center ratio alone suggested -0.56, but grain clipping, levels crush and glow bloom bias that reading; the fit reconciles it with the histogram. Negative darkens the edges.",
+          "confidence": 0.65
+        },
+        {
+          "topic": "exposure",
+          "message": "A joint fit of the luminance quantile curve (searching vignette and glow alongside exposure/levels so bloom and corner falloff are not absorbed here) puts exposure at 0.60 stops. The AE Exposure response is calibrated, not 2^stops, so trust this number.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "levels",
+          "message": "The quantile curve also fits a Levels remap of input [0.080, 0.880] to output [0.010, 1.000]. Output fades (black lift / white ceiling) and input contrast show up here; grain smears the extremes, so check the Levels histogram in AE.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "white_balance",
+          "message": "Mid-tone channel balance (region fixed by the reference, so split toning does not leak in) places temperature at 50 and tint at 8 (grid refined continuously, expect +-5). Saturation is divided out first.",
+          "confidence": 0.6
+        },
+        {
+          "topic": "saturation",
+          "message": "Mid-tone chroma is corrected for white-balance chroma gain and the levels/exposure slope, then inverted through the saturation calibration curve: amount 34.",
+          "confidence": 0.6
+        }
+      ],
+      "overall_confidence": 0.61
+    }
+  }
+}

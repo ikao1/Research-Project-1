@@ -38,7 +38,7 @@ REQUIRED_ASPECT_FIELDS = {
     "grain": ("amount",),
 }
 
-NOTE_TOPICS = set(ASPECTS) | {"general"}
+NOTE_TOPICS = set(ASPECTS) | set(REQUIRED_ASPECT_FIELDS) | {"general"}
 
 
 def validate(analysis):

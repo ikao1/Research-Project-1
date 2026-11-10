@@ -22,7 +22,7 @@
       "confidence": 1.0
     },
     "vignette": {
-      "amount": 3.0,
+      "amount": -3.0,
       "roundness": 20,
       "feather": 85,
       "confidence": 1.0
