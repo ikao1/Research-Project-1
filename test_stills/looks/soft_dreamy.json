@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "name": "soft_dreamy",
+  "source": {
+    "path": "../base_plate.png",
+    "type": "image",
+    "width": 1280,
+    "height": 720
+  },
+  "look": {
+    "exposure": {
+      "stops": 0.15,
+      "confidence": 1.0
+    },
+    "white_balance": {
+      "temperature": 8,
+      "confidence": 1.0
+    },
+    "saturation": {
+      "amount": -12,
+      "confidence": 1.0
+    },
+    "blur": {
+      "radius_px": 3.5,
+      "confidence": 1.0
+    },
+    "glow": {
+      "threshold": 190,
+      "radius_px": 22,
+      "intensity": 0.9,
+      "confidence": 1.0
+    }
+  },
+  "notes": [
+    {
+      "topic": "general",
+      "message": "Ground truth: diffusion-filter dreamy softness",
+      "confidence": 1.0
+    }
+  ],
+  "overall_confidence": 1.0
+}

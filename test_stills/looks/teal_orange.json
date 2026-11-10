@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "name": "teal_orange",
+  "source": {
+    "path": "../base_plate.png",
+    "type": "image",
+    "width": 1280,
+    "height": 720
+  },
+  "look": {
+    "levels": {
+      "input_black": 0.06,
+      "input_white": 0.94,
+      "confidence": 1.0
+    },
+    "saturation": {
+      "amount": 10,
+      "confidence": 1.0
+    },
+    "split_tone": {
+      "shadows_hex": "#16323a",
+      "highlights_hex": "#e8b27d",
+      "strength": 45,
+      "confidence": 1.0
+    }
+  },
+  "notes": [
+    {
+      "topic": "general",
+      "message": "Ground truth: cinematic teal shadows / orange highlights",
+      "confidence": 1.0
+    }
+  ],
+  "overall_confidence": 1.0
+}

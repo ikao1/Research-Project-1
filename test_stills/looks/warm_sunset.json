@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "name": "warm_sunset",
+  "source": {
+    "path": "../base_plate.png",
+    "type": "image",
+    "width": 1280,
+    "height": 720
+  },
+  "look": {
+    "exposure": {
+      "stops": 0.3,
+      "confidence": 1.0
+    },
+    "white_balance": {
+      "temperature": 35,
+      "confidence": 1.0
+    },
+    "saturation": {
+      "amount": 15,
+      "confidence": 1.0
+    },
+    "glow": {
+      "threshold": 180,
+      "radius_px": 14,
+      "intensity": 0.6,
+      "confidence": 1.0
+    },
+    "vignette": {
+      "amount": 1.5,
+      "feather": 70,
+      "confidence": 1.0
+    }
+  },
+  "notes": [
+    {
+      "topic": "general",
+      "message": "Ground truth: golden-hour warmth with soft highlight bloom",
+      "confidence": 1.0
+    }
+  ],
+  "overall_confidence": 1.0
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "name": "moody_blue",
+  "source": {
+    "path": "../base_plate.png",
+    "type": "image",
+    "width": 1280,
+    "height": 720
+  },
+  "look": {
+    "white_balance": {
+      "temperature": -30,
+      "tint": -5,
+      "confidence": 1.0
+    },
+    "levels": {
+      "input_black": 0.1,
+      "confidence": 1.0
+    },
+    "saturation": {
+      "amount": -20,
+      "confidence": 1.0
+    },
+    "vignette": {
+      "amount": 2.2,
+      "feather": 80,
+      "confidence": 1.0
+    },
+    "grain": {
+      "amount": 10,
+      "monochrome": true,
+      "confidence": 1.0
+    }
+  },
+  "notes": [
+    {
+      "topic": "general",
+      "message": "Ground truth: cool crushed-blue mood grade",
+      "confidence": 1.0
+    }
+  ],
+  "overall_confidence": 1.0
+}

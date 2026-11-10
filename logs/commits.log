@@ -81,3 +81,45 @@ M	ae_mcp/install.py
 M	ae_mcp/mcp_server.py
 M	ae_mcp/tests/test_bridge.py
 
+==================================================================
+Date:    2026-11-09 21:35:34
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Add Look Decomposer engine, schema, and ground-truth test set (Nov 10 spike)
+Files:
+M	docs/research-log.md
+A	docs/schema.md
+M	logs/commands.log
+A	look_decomposer/README.md
+A	look_decomposer/__init__.py
+A	look_decomposer/ae/build_look_comp.jsx
+A	look_decomposer/ae/look_fx.jsx
+A	look_decomposer/ae_transport.py
+A	look_decomposer/build.py
+A	look_decomposer/generate_test_stills.py
+A	look_decomposer/make_base_plate.py
+A	look_decomposer/schema/analysis.schema.json
+A	look_decomposer/validate.py
+A	test_stills/base_plate.png
+A	test_stills/ground_truth.aep
+A	test_stills/looks/bleach_bypass.json
+A	test_stills/looks/filmic_faded.json
+A	test_stills/looks/high_key.json
+A	test_stills/looks/moody_blue.json
+A	test_stills/looks/natural_reference.json
+A	test_stills/looks/noir.json
+A	test_stills/looks/soft_dreamy.json
+A	test_stills/looks/teal_orange.json
+A	test_stills/looks/vhs.json
+A	test_stills/looks/warm_sunset.json
+A	test_stills/renders/bleach_bypass.png
+A	test_stills/renders/filmic_faded.png
+A	test_stills/renders/high_key.png
+A	test_stills/renders/moody_blue.png
+A	test_stills/renders/natural_reference.png
+A	test_stills/renders/noir.png
+A	test_stills/renders/soft_dreamy.png
+A	test_stills/renders/teal_orange.png
+A	test_stills/renders/vhs.png
+A	test_stills/renders/warm_sunset.png
+

@@ -1,0 +1,162 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/ikao1/Research-Project-1/look_decomposer/schema/analysis.schema.json",
+  "title": "Look Decomposer analysis",
+  "description": "The intermediate format between the image/video analyzer and the After Effects comp builder. A look section that is absent means 'not detected / neutral'. All numeric ranges below match the After Effects effect parameters the builder drives, so values can be pushed straight into AE.",
+  "type": "object",
+  "required": ["schema_version", "name", "source", "look"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^1\\.\\d+(\\.\\d+)?$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Short slug identifying the look (used in comp names).",
+      "maxLength": 64
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": ["string", "null"],
+          "description": "Path to the analyzed media; relative paths resolve against the JSON file's folder."
+        },
+        "type": { "enum": ["image", "video"] },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "frames": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "look": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "exposure": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "stops": { "type": "number", "minimum": -10, "maximum": 10 },
+            "gamma": { "type": "number", "exclusiveMinimum": 0, "maximum": 10 },
+            "confidence": { "$ref": "#/definitions/confidence" }
+          }
+        },
+        "levels": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Contrast and fade. input_black/input_white remap the tonal range; output_black/output_white lift/attenuate (matte fade). AE 'Levels (Individual Controls)' master channel.",
+          "properties": {
+            "input_black": { "type": "number", "minimum": 0, "maximum": 0.98 },
+            "input_white": { "type": "number", "minimum": 0.02, "maximum": 1 },
+            "gamma": { "type": "number", "exclusiveMinimum": 0, "maximum": 10 },
+            "output_black": { "type": "number", "minimum": 0, "maximum": 0.98 },
+            "output_white": { "type": "number", "minimum": 0.02, "maximum": 1 },
+            "confidence": { "$ref": "#/definitions/confidence" }
+          }
+        },
+        "white_balance": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "AE Lumetri Basic Correction Temperature/Tint, -100 (cool/magenta) to +100 (warm/green).",
+          "properties": {
+            "temperature": { "type": "number", "minimum": -100, "maximum": 100 },
+            "tint": { "type": "number", "minimum": -100, "maximum": 100 },
+            "confidence": { "$ref": "#/definitions/confidence" }
+          }
+        },
+        "saturation": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Saturation, -100 (mono) to +100 (hyper). Implemented with AE Color Balance (HLS) Saturation, which accepts expressions (Hue/Saturation does not).",
+          "properties": {
+            "amount": { "type": "number", "minimum": -100, "maximum": 100 },
+            "confidence": { "$ref": "#/definitions/confidence" }
+          }
+        },
+        "split_tone": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Shadows tinted toward shadows_hex, highlights toward highlights_hex. Implemented with AE Tint (Map Black To / Map White To / Amount to Tint).",
+          "required": ["shadows_hex", "highlights_hex", "strength"],
+          "properties": {
+            "shadows_hex": { "$ref": "#/definitions/hexcolor" },
+            "highlights_hex": { "$ref": "#/definitions/hexcolor" },
+            "strength": { "type": "number", "minimum": 0, "maximum": 100 },
+            "confidence": { "$ref": "#/definitions/confidence" }
+          }
+        },
+        "blur": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Global Gaussian blur radius in pixels.",
+          "properties": {
+            "radius_px": { "type": "number", "minimum": 0, "maximum": 500 },
+            "confidence": { "$ref": "#/definitions/confidence" }
+          }
+        },
+        "glow": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "AE Glow effect parameters.",
+          "properties": {
+            "threshold": { "type": "number", "minimum": 0, "maximum": 255 },
+            "radius_px": { "type": "number", "minimum": 0, "maximum": 500 },
+            "intensity": { "type": "number", "minimum": 0, "maximum": 100 },
+            "confidence": { "$ref": "#/definitions/confidence" }
+          }
+        },
+        "vignette": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "AE Lumetri vignette: Amount -5..5 (negative brightens edges), Midpoint/Feather 0..100, Roundness -100..100.",
+          "properties": {
+            "amount": { "type": "number", "minimum": -5, "maximum": 5 },
+            "midpoint": { "type": "number", "minimum": 0, "maximum": 100 },
+            "roundness": { "type": "number", "minimum": -100, "maximum": 100 },
+            "feather": { "type": "number", "minimum": 0, "maximum": 100 },
+            "confidence": { "$ref": "#/definitions/confidence" }
+          }
+        },
+        "grain": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "AE Noise effect: Amount 0..100, monochrome flag switches off colored noise.",
+          "properties": {
+            "amount": { "type": "number", "minimum": 0, "maximum": 100 },
+            "monochrome": { "type": "boolean" },
+            "confidence": { "$ref": "#/definitions/confidence" }
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "description": "Rule-based reasoning: why each parameter was chosen. Feeds the written how-to guide.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["topic", "message"],
+        "properties": {
+          "topic": { "type": "string", "enum": ["exposure", "levels", "white_balance", "saturation", "split_tone", "blur", "glow", "vignette", "grain", "general"] },
+          "message": { "type": "string" },
+          "confidence": { "$ref": "#/definitions/confidence" }
+        }
+      }
+    },
+    "overall_confidence": { "$ref": "#/definitions/confidence" }
+  },
+  "definitions": {
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "0 = pure guess, 1 = certain. Inverted compositing is underdetermined; these numbers let the guide speak honestly."
+    },
+    "hexcolor": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$"
+    }
+  }
+}

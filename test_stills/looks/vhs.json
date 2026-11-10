@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "name": "vhs",
+  "source": {
+    "path": "../base_plate.png",
+    "type": "image",
+    "width": 1280,
+    "height": 720
+  },
+  "look": {
+    "exposure": {
+      "stops": 0.1,
+      "confidence": 1.0
+    },
+    "saturation": {
+      "amount": -35,
+      "confidence": 1.0
+    },
+    "split_tone": {
+      "shadows_hex": "#2a2f4a",
+      "highlights_hex": "#d9c9a8",
+      "strength": 30,
+      "confidence": 1.0
+    },
+    "blur": {
+      "radius_px": 1.2,
+      "confidence": 1.0
+    },
+    "vignette": {
+      "amount": 0.8,
+      "confidence": 1.0
+    },
+    "grain": {
+      "amount": 35,
+      "monochrome": false,
+      "confidence": 1.0
+    }
+  },
+  "notes": [
+    {
+      "topic": "general",
+      "message": "Ground truth: VHS tape look with color noise",
+      "confidence": 1.0
+    }
+  ],
+  "overall_confidence": 1.0
+}

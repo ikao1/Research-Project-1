@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "name": "high_key",
+  "source": {
+    "path": "../base_plate.png",
+    "type": "image",
+    "width": 1280,
+    "height": 720
+  },
+  "look": {
+    "exposure": {
+      "stops": 0.7,
+      "gamma": 0.85,
+      "confidence": 1.0
+    },
+    "levels": {
+      "input_white": 0.97,
+      "confidence": 1.0
+    },
+    "saturation": {
+      "amount": 8,
+      "confidence": 1.0
+    }
+  },
+  "notes": [
+    {
+      "topic": "general",
+      "message": "Ground truth: bright airy high-key treatment",
+      "confidence": 1.0
+    }
+  ],
+  "overall_confidence": 1.0
+}

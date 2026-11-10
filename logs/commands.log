@@ -4,3 +4,6 @@
 2026-11-09 20:37:51 | gh repo create "Research-Project-1" --public --source=. --remote=origin --push
 2026-11-09 20:47:05 | python3 ae_mcp/tests/test_bridge.py
 2026-11-09 20:47:05 | python3 ae_mcp/install.py
+2026-11-09 21:35:30 | python3 -m look_decomposer.make_base_plate
+2026-11-09 21:35:30 | python3 -m look_decomposer.generate_test_stills
+2026-11-09 21:35:30 | python3 -m look_decomposer.build test_stills/looks/noir.json

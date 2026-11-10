@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "name": "filmic_faded",
+  "source": {
+    "path": "../base_plate.png",
+    "type": "image",
+    "width": 1280,
+    "height": 720
+  },
+  "look": {
+    "levels": {
+      "output_black": 0.09,
+      "output_white": 0.97,
+      "confidence": 1.0
+    },
+    "white_balance": {
+      "temperature": 12,
+      "confidence": 1.0
+    },
+    "saturation": {
+      "amount": -8,
+      "confidence": 1.0
+    },
+    "grain": {
+      "amount": 14,
+      "monochrome": true,
+      "confidence": 1.0
+    },
+    "vignette": {
+      "amount": 0.6,
+      "confidence": 1.0
+    }
+  },
+  "notes": [
+    {
+      "topic": "general",
+      "message": "Ground truth: faded film matte with lifted blacks",
+      "confidence": 1.0
+    }
+  ],
+  "overall_confidence": 1.0
+}

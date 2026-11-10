@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "name": "noir",
+  "source": {
+    "path": "../base_plate.png",
+    "type": "image",
+    "width": 1280,
+    "height": 720
+  },
+  "look": {
+    "exposure": {
+      "stops": -0.1,
+      "confidence": 1.0
+    },
+    "saturation": {
+      "amount": -100,
+      "confidence": 1.0
+    },
+    "levels": {
+      "input_black": 0.12,
+      "input_white": 0.9,
+      "confidence": 1.0
+    },
+    "vignette": {
+      "amount": 3.0,
+      "roundness": 20,
+      "feather": 85,
+      "confidence": 1.0
+    },
+    "grain": {
+      "amount": 30,
+      "monochrome": true,
+      "confidence": 1.0
+    }
+  },
+  "notes": [
+    {
+      "topic": "general",
+      "message": "Ground truth: monochrome noir with heavy grain and vignette",
+      "confidence": 1.0
+    }
+  ],
+  "overall_confidence": 1.0
+}

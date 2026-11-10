@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "name": "natural_reference",
+  "source": {
+    "path": "../base_plate.png",
+    "type": "image",
+    "width": 1280,
+    "height": 720
+  },
+  "look": {
+    "white_balance": {
+      "temperature": 4,
+      "tint": 2,
+      "confidence": 1.0
+    }
+  },
+  "notes": [
+    {
+      "topic": "general",
+      "message": "Ground truth: near-neutral control case for false positives",
+      "confidence": 1.0
+    }
+  ],
+  "overall_confidence": 1.0
+}

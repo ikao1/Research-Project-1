@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "name": "bleach_bypass",
+  "source": {
+    "path": "../base_plate.png",
+    "type": "image",
+    "width": 1280,
+    "height": 720
+  },
+  "look": {
+    "levels": {
+      "input_black": 0.08,
+      "input_white": 0.92,
+      "output_black": 0.04,
+      "output_white": 0.96,
+      "confidence": 1.0
+    },
+    "saturation": {
+      "amount": -60,
+      "confidence": 1.0
+    },
+    "grain": {
+      "amount": 18,
+      "monochrome": true,
+      "confidence": 1.0
+    },
+    "vignette": {
+      "amount": 1.0,
+      "confidence": 1.0
+    }
+  },
+  "notes": [
+    {
+      "topic": "general",
+      "message": "Ground truth: desaturated high-contrast bleach-bypass look",
+      "confidence": 1.0
+    }
+  ],
+  "overall_confidence": 1.0
+}
