@@ -122,6 +122,7 @@ def main():
 
         env = dict(os.environ)
         env["AE_MCP_BRIDGE_DIR"] = str(bridge_dir)
+        env["AE_MCP_TRANSPORT"] = "mailbox"
         proc = subprocess.Popen(
             [sys.executable, str(SERVER)],
             stdin=subprocess.PIPE,

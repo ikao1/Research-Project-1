@@ -67,3 +67,17 @@ A	ae_mcp/mcp_server.py
 A	ae_mcp/tests/test_bridge.py
 M	logs/commands.log
 
+==================================================================
+Date:    2026-11-09 21:22:12
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Switch AE MCP bridge to synchronous DoScript transport
+Files:
+M	README.md
+M	ae_mcp/README.md
+M	ae_mcp/ae_plugin/ae_mcp_bridge.jsx
+A	ae_mcp/ae_plugin/ae_mcp_runner.jsx
+M	ae_mcp/install.py
+M	ae_mcp/mcp_server.py
+M	ae_mcp/tests/test_bridge.py
+

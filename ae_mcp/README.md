@@ -6,50 +6,67 @@ and export frames.
 
 ## How it works
 
-After Effects' scripting engine cannot open a TCP server, so the bridge uses a
-local file mailbox instead of a socket:
+On macOS the server sends ExtendScript to the already-open After Effects instance
+with AppleScript's `DoScript` command:
 
 ```
 opencode  ──stdio──  mcp_server.py
-                          │ writes request JSON
+                          │ builds a request + runner JSX
                           ▼
-        ~/Library/Application Support/AE-MCP-Bridge/inbox/
-                          │ polled every 200 ms by
+              ae_plugin/ae_mcp_runner.jsx
+                          │ osascript -> DoScript
                           ▼
-        ae_mcp_bridge.jsx  (extendscript inside After Effects)
-                          │ evaluates the JSX, writes result
+              running After Effects (ExtendScript)
+                          │ executes the code, writes JSON
                           ▼
-                .../AE-MCP-Bridge/outbox/<id>.json
+        ~/Library/Application Support/AE-MCP-Bridge/doscript/<id>.json
                           │ read by mcp_server.py
                           ▼
                      tool response
 ```
 
-Files are written atomically (`.tmp` then rename), so neither side ever reads a
-partial message. The mailbox is local to your user account.
+The runner executes the requested code as a function body, captures
+`$.writeln()` / `aeLog()` output, serializes the result or error, and writes a
+JSON response. No After Effects startup script or background polling is required.
 
-## Install
+A file-mailbox transport remains available for the fallback path
+(`AE_MCP_TRANSPORT=mailbox`). It uses `ae_plugin/ae_mcp_bridge.jsx` and a Startup
+folder copy; it is not used by default on macOS.
 
-```sh
-python3 "/Users/ikao1/Desktop/Research Project 1/ae_mcp/install.py"
-```
+## Requirements
 
-This copies `ae_plugin/ae_mcp_bridge.jsx` into the user Startup folder for every
-detected After Effects version and creates the mailbox directories.
+- macOS with After Effects installed (tested with After Effects 2026 / 26.5).
+- After Effects must be running and allowed to receive AppleScript commands.
+- In After Effects, enable **Preferences > Scripting & Expressions > Allow
+  Scripts to Write Files and Access Network** (the runner writes its response to
+  disk).
 
-Then:
+## Setup
 
-1. Enable **Preferences > Scripting & Expressions > Allow Scripts to Write Files
-   and Access Network** in After Effects.
-2. Quit and reopen After Effects (or run the plugin once with
-   **File > Scripts > Run Script File...**).
-3. Restart opencode so it loads the MCP server.
+1. Open After Effects.
+2. Enable the scripting preference above.
+3. Verify the bridge:
 
-Check the installation without launching After Effects:
+   ```sh
+   python3 "/Users/ikao1/Desktop/Research Project 1/ae_mcp/install.py" --status
+   ```
 
-```sh
-python3 "/Users/ikao1/Desktop/Research Project 1/ae_mcp/install.py" --status
-```
+   A successful result looks like:
+
+   ```
+   Transport: DoScript (macOS; no startup script required)
+   Live probe: OK
+   {
+     "alive": true,
+     "ae_version": "26.5x89",
+     ...
+   }
+   ```
+
+4. Restart opencode so it loads the MCP server.
+
+No AE startup script is needed. `install.py` only prepares the fallback mailbox
+and can optionally install the legacy startup script with `--with-startup`.
 
 ## opencode configuration
 
@@ -76,7 +93,7 @@ After editing the config, quit and restart opencode.
 
 | Tool | What it does |
 | --- | --- |
-| `aftereffects_status` | Check the heartbeat, AE version, project, active comp |
+| `aftereffects_status` | Check the live DoScript connection, AE version, project, active comp |
 | `aftereffects_run` | Execute arbitrary ExtendScript/JSX and return its value |
 | `aftereffects_project_info` | Project name, path, item count, comps |
 | `aftereffects_list_comps` | Comps with size, duration, fps, layer count |
@@ -98,7 +115,7 @@ comp.openInViewer();
 var grade = comp.layers.addSolid([1, 1, 1], "Color Grade", 1920, 1080, 1);
 grade.adjustmentLayer = true;
 var curves = grade.Effects.addProperty("ADBE Curves");
-var hsl = grade.Effects.addProperty("ADBE HUE SATURATION");
+var hsl = grade.Effects.addProperty("ADBE Hue Saturation");
 
 var grain = comp.layers.addSolid([1, 1, 1], "Grain", 1920, 1080, 1);
 grain.adjustmentLayer = true;
@@ -112,25 +129,28 @@ return {
 
 ## Troubleshooting
 
-- **"bridge is NOT reachable"**: After Effects must be running, the startup
-  script must be installed, and the bridge must have started. Run
-  `install.py --status` to see the last heartbeat.
-- **No heartbeat after installing**: quit and reopen After Effects. If it still
-  fails, run the plugin manually from **File > Scripts > Run Script File...**.
-- **File permission errors**: enable **Allow Scripts to Write Files and Access
-  Network** in After Effects' Scripting preferences.
-- **Check the AE-side log**: `~/Library/Application Support/AE-MCP-Bridge/bridge.log`.
-- **Scripts take long / time out**: After Effects blocks its UI while a script
-  runs; raise `timeout_seconds` (max 290).
+- **"bridge is NOT reachable"**: After Effects must be running. Check with
+  `python3 ae_mcp/install.py --status`.
+- **AppleScript permission error**: allow your terminal (or opencode) to control
+  After Effects in **System Settings > Privacy & Security > Automation**.
+- **"did not write a response"**: enable **Allow Scripts to Write Files and
+  Access Network** in After Effects' Scripting preferences.
+- **Modal dialog / call hangs**: After Effects blocks while a script runs. Close
+  any modal dialogs in AE, then retry.
+- **First call after launch is slow**: wait for AE to finish starting, then retry.
+- **Scripts take long / time out**: raise `timeout_seconds` (max 290).
+- **Mailbox fallback**: set `AE_MCP_TRANSPORT=mailbox`, install with
+  `python3 ae_mcp/install.py --with-startup`, and restart After Effects. The
+  DoScript transport is more reliable on macOS.
 
 ## Notes and limits
 
-- Polling adds up to ~200 ms of latency per call.
+- DoScript calls are synchronous and serialized; After Effects' UI blocks while a
+  script runs.
 - ExtendScript is ES3: no native `JSON`, `Array.map`, `Object.keys`, `let`, or
-  arrow functions. The bridge provides JSON serialization for return values.
+  arrow functions. The runner provides JSON serialization for return values.
 - Return values are serialized up to a depth of 20 and 500 keys per object.
 - `var` declarations inside `run` do not persist between calls. Use
   `$.global.name = value` for state that must survive.
-- The mailbox is not encrypted. Do not expose it to other users or sync it.
 - This grants an MCP client arbitrary script execution in After Effects. Only
   enable it on a machine you control and with a client you trust.

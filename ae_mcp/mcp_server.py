@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 """opencode MCP server that drives a live Adobe After Effects session.
 
-After Effects cannot host a TCP server from ExtendScript, so this bridge uses a
-small file-based mailbox in the user's Application Support folder:
+On macOS the server uses AppleScript's ``DoScript`` command to run a small
+ExtendScript runner in the already-open After Effects instance. The runner
+evaluates the requested code and writes a JSON response that Python reads back.
+This needs no startup script and works with After Effects' normal scripting
+security setting.
+
+A file-mailbox transport is kept as a fallback for non-macOS hosts or when
+``AE_MCP_TRANSPORT=mailbox`` is set:
 
     ~/Library/Application Support/AE-MCP-Bridge/
         inbox/     <-- MCP server writes JSON requests here
-        outbox/    <-- After Effects startup script writes JSON responses here
+        outbox/    <-- After Effects bridge writes JSON responses here
         status.json
-
-Place ae_plugin/ae_mcp_bridge.jsx in After Effects' Scripts/Startup folder (run
-install.py). On launch it polls the inbox, evaluates the ExtendScript it
-receives, and writes the result to the outbox.
 """
 
 import json
 import os
+import shutil
+import subprocess
 import sys
 import time
 import traceback
@@ -23,14 +27,19 @@ import uuid
 from pathlib import Path
 
 SERVER_NAME = "after-effects-bridge"
-SERVER_VERSION = "0.1.0"
+SERVER_VERSION = "0.2.0"
 DEFAULT_PROTOCOL = "2024-11-05"
 
 DEFAULT_BRIDGE_DIR = Path.home() / "Library" / "Application Support" / "AE-MCP-Bridge"
 BRIDGE_DIR = Path(os.environ.get("AE_MCP_BRIDGE_DIR", str(DEFAULT_BRIDGE_DIR))).expanduser()
 INBOX = BRIDGE_DIR / "inbox"
 OUTBOX = BRIDGE_DIR / "outbox"
+DOSCRIPT_DIR = BRIDGE_DIR / "doscript"
 STATUS_FILE = BRIDGE_DIR / "status.json"
+
+RUNNER_PATH = Path(__file__).resolve().parent / "ae_plugin" / "ae_mcp_runner.jsx"
+AE_APP_ID = os.environ.get("AE_APP_ID", "com.adobe.AfterEffects.application")
+TRANSPORT = os.environ.get("AE_MCP_TRANSPORT", "auto").strip().lower()
 
 MAX_FIELD = 40000
 DEFAULT_TIMEOUT = 120.0
@@ -39,13 +48,13 @@ STALE_AFTER = 10.0
 POLL_INTERVAL = 0.05
 
 INSTALL_HINT = (
-    "Install the After Effects side of the bridge, then restart After Effects:\n\n"
+    "On macOS the bridge talks to After Effects through AppleScript DoScript, so no\n"
+    "startup script is required. Make sure After Effects is running and that\n"
+    "Preferences > Scripting & Expressions > 'Allow Scripts to Write Files and\n"
+    "Access Network' is enabled.\n\n"
+    "For the mailbox fallback, run:\n\n"
     '    python3 "%s/ae_mcp/install.py"\n\n'
-    "If After Effects is already running, you can start the bridge manually with\n"
-    "File > Scripts > Run Script File... and selecting:\n\n"
-    "    ~/Library/Application Support/Adobe/After Effects/<version>/Scripts/Startup/ae_mcp_bridge.jsx\n\n"
-    "Also enable Preferences > Scripting & Expressions > "
-    "'Allow Scripts to Write Files and Access Network'."
+    "Then start the bridge manually with File > Scripts > Run Script File..."
 ) % Path(__file__).resolve().parent.parent
 
 
@@ -54,8 +63,20 @@ class BridgeError(Exception):
 
 
 def ensure_dirs():
-    for path in (BRIDGE_DIR, INBOX, OUTBOX):
+    for path in (BRIDGE_DIR, INBOX, OUTBOX, DOSCRIPT_DIR):
         path.mkdir(parents=True, exist_ok=True)
+
+
+def doscript_enabled():
+    if TRANSPORT == "mailbox":
+        return False
+    if TRANSPORT == "doscript":
+        return True
+    return (
+        sys.platform == "darwin"
+        and shutil.which("osascript") is not None
+        and RUNNER_PATH.exists()
+    )
 
 
 def _truncate(text, limit=MAX_FIELD):
@@ -82,8 +103,8 @@ def _status_age(status):
         return None
 
 
-def bridge_call(code, timeout):
-    """Send ExtendScript to After Effects and wait for the JSON response."""
+def mailbox_call(code, timeout):
+    """Send ExtendScript through the file mailbox and wait for a response."""
     ensure_dirs()
     request_id = "%d_%s" % (time.time_ns(), uuid.uuid4().hex[:8])
     req_path = INBOX / (request_id + ".json")
@@ -131,6 +152,113 @@ def bridge_call(code, timeout):
                 req_path.unlink()
         except OSError:
             pass
+
+
+def _applescript_quote(text):
+    return '"' + str(text).replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def doscript_call(code, timeout):
+    """Run ExtendScript in the open After Effects instance via AppleScript."""
+    ensure_dirs()
+    try:
+        runner = RUNNER_PATH.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise BridgeError(
+            "Cannot read the DoScript runner at %s: %s" % (RUNNER_PATH, exc)
+        )
+
+    request_id = "%d_%s" % (time.time_ns(), uuid.uuid4().hex[:8])
+    req_path = DOSCRIPT_DIR / (request_id + ".jsx")
+    resp_path = DOSCRIPT_DIR / (request_id + ".json")
+
+    prefix = (
+        "var __AE_MCP_ID = %s;\n"
+        "var __AE_MCP_CODE = %s;\n"
+        "var __AE_MCP_RESPONSE = %s;\n"
+    ) % (
+        json.dumps(request_id),
+        json.dumps(code),
+        json.dumps(str(resp_path)),
+    )
+    req_path.write_text(prefix + runner, encoding="utf-8")
+
+    apple_script = (
+        "set jsText to read (POSIX file %s) as «class utf8»\n"
+        "tell application id %s to DoScript jsText"
+    ) % (
+        _applescript_quote(str(req_path)),
+        _applescript_quote(AE_APP_ID),
+    )
+
+    try:
+        proc = subprocess.run(
+            ["osascript", "-e", apple_script],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except FileNotFoundError:
+        raise BridgeError("osascript was not found; DoScript needs macOS.")
+    except subprocess.TimeoutExpired:
+        raise BridgeError(
+            "Timed out after %g seconds waiting for After Effects.\n\n"
+            "The script may still be running (After Effects blocks while a script runs). "
+            "Increase timeout_seconds if it is legitimately slow.\n\n"
+            "Request: %s" % (timeout, req_path)
+        )
+    finally:
+        try:
+            if req_path.exists():
+                req_path.unlink()
+        except OSError:
+            pass
+
+    if proc.returncode != 0:
+        detail = (proc.stderr or proc.stdout or "").strip()
+        raise BridgeError(
+            "After Effects DoScript failed (exit %s).\n\n%s\n\n%s"
+            % (proc.returncode, detail, INSTALL_HINT)
+        )
+
+    deadline = time.time() + 5.0
+    last_error = None
+    while time.time() < deadline:
+        if resp_path.exists():
+            try:
+                response = json.loads(resp_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError) as exc:
+                last_error = exc
+                time.sleep(POLL_INTERVAL)
+                continue
+            try:
+                resp_path.unlink()
+            except OSError:
+                pass
+            if isinstance(response, dict):
+                return response
+            last_error = "response was not a JSON object"
+        time.sleep(POLL_INTERVAL)
+
+    raise BridgeError(
+        "After Effects ran the script but did not write a response.\n\n"
+        "This usually means file writing is blocked. Enable Preferences > "
+        "Scripting & Expressions > 'Allow Scripts to Write Files and Access "
+        "Network', then retry.\n\n"
+        "Response: %s\nRunner: %s%s"
+        % (
+            resp_path,
+            RUNNER_PATH,
+            ("\nLast read error: %s" % last_error) if last_error else "",
+        )
+    )
+
+
+def bridge_call(code, timeout):
+    """Send ExtendScript to After Effects using the best available transport."""
+    if doscript_enabled():
+        return doscript_call(code, timeout)
+    return mailbox_call(code, timeout)
 
 
 def _format_response(response, elapsed):
@@ -239,25 +367,29 @@ def _float_arg(args, name, default, low, high):
 
 
 def _tool_status(args):
+    use_doscript = doscript_enabled()
     status = _read_status()
     age = _status_age(status)
 
-    if status and age is not None and age <= STALE_AFTER:
+    if not use_doscript and status and age is not None and age <= STALE_AFTER:
         info = dict(status)
+        info["transport"] = "mailbox"
         info["bridge_dir"] = str(BRIDGE_DIR)
         info["heartbeat_age_seconds"] = round(age, 1)
         text = "Bridge OK - heartbeat %.1fs ago\n%s" % (age, json.dumps(info, indent=2))
         return _truncate(text, MAX_FIELD * 2), False
 
-    # Heartbeat is missing or stale; try a live probe in case the status file
-    # is just not being written.
+    # DoScript has no heartbeat, and a mailbox heartbeat can be stale. Verify
+    # with a live probe against the running After Effects process.
     try:
-        response = bridge_call(STATUS_PROBE_CODE, timeout=5)
+        response = bridge_call(STATUS_PROBE_CODE, timeout=60 if use_doscript else 5)
     except BridgeError as exc:
         text = (
-            "After Effects bridge is NOT reachable.\n\n%s\n\n"
+            "After Effects bridge is NOT reachable.\n\n"
+            "Transport: %s\n\n%s\n\n"
             "Last heartbeat: %s"
             % (
+                "doscript" if use_doscript else "mailbox",
                 exc,
                 (
                     "none (status.json not found)"
@@ -275,8 +407,12 @@ def _tool_status(args):
         return _truncate(text), True
 
     info = response.get("result") or {}
+    info["transport"] = "doscript" if use_doscript else "mailbox"
     info["bridge_dir"] = str(BRIDGE_DIR)
-    text = "Bridge OK - live probe\n%s" % json.dumps(info, indent=2)
+    text = "Bridge OK - live %s probe\n%s" % (
+        "DoScript" if use_doscript else "mailbox",
+        json.dumps(info, indent=2),
+    )
     return _truncate(text, MAX_FIELD * 2), False
 
 
@@ -455,7 +591,7 @@ TOOLS = [
         "name": "status",
         "description": (
             "Check whether the live After Effects bridge is reachable. Reports the "
-            "After Effects version, open project, active composition, and heartbeat. "
+            "transport, After Effects version, open project, and active composition. "
             "Use this before running scripts when a connection problem is suspected."
         ),
         "inputSchema": {"type": "object", "properties": {}},
@@ -469,7 +605,8 @@ TOOLS = [
             "Use `$.writeln()` or the global `aeLog()` for logs, which are captured. "
             "After Effects' UI blocks while the script runs. State persists in the "
             "project, and globals survive across calls through `$.global`. Requires "
-            "After Effects to be running with the bridge startup script installed."
+            "After Effects to be open. On macOS the call is delivered through "
+            "AppleScript DoScript."
         ),
         "inputSchema": {
             "type": "object",
@@ -603,12 +740,12 @@ _HANDLERS = {
 }
 
 _INSTRUCTIONS = (
-    "Tools run ExtendScript in a live Adobe After Effects session through a local "
-    "file-mailbox bridge. Use aftereffects_status to confirm the bridge is reachable, "
-    "then aftereffects_run to execute JSX. Scripts block the After Effects UI while "
-    "running. The startup script must be installed and After Effects must be open. "
-    "Use the convenience tools (create_comp, import_footage, export_frame) for common "
-    "operations and aftereffects_run for everything else."
+    "Tools run ExtendScript in a live Adobe After Effects session. On macOS the "
+    "server uses AppleScript DoScript, so no startup script is needed; After Effects "
+    "must be open. Use aftereffects_status to confirm the bridge is reachable, then "
+    "aftereffects_run to execute JSX. Scripts block the After Effects UI while "
+    "running. Use the convenience tools (create_comp, import_footage, export_frame) "
+    "for common operations and aftereffects_run for everything else."
 )
 
 

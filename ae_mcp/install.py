@@ -1,20 +1,28 @@
 #!/usr/bin/env python3
-"""Install (or remove) the After Effects side of the AE MCP bridge.
+"""Configure the After Effects MCP bridge.
 
-Copies ae_plugin/ae_mcp_bridge.jsx into each After Effects version's user
-Startup folder and creates the mailbox directories used by mcp_server.py.
+On macOS the MCP server talks to After Effects through AppleScript DoScript, so
+no startup script is required. This tool prepares the fallback file mailbox and
+can optionally install the legacy mailbox startup script.
+
+The live probe uses mcp_server.py, so it exercises the same transport that
+opencode will use.
 """
 
 import argparse
+import json
 import os
 import plistlib
 import shutil
 import sys
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 PLUGIN = HERE / "ae_plugin" / "ae_mcp_bridge.jsx"
+PREFS_ROOT = Path.home() / "Library" / "Preferences" / "Adobe" / "After Effects"
 SUPPORT_ROOT = Path.home() / "Library" / "Application Support" / "Adobe" / "After Effects"
+SCRIPT_ROOTS = (PREFS_ROOT, SUPPORT_ROOT)
 BRIDGE_DIR = Path(
     os.environ.get(
         "AE_MCP_BRIDGE_DIR",
@@ -44,28 +52,34 @@ def installed_versions():
         if version:
             versions.add(version)
 
-    if SUPPORT_ROOT.exists():
-        for child in SUPPORT_ROOT.iterdir():
-            if child.is_dir() and child.name[:1].isdigit():
-                versions.add(child.name)
+    for root in SCRIPT_ROOTS:
+        if root.exists():
+            for child in root.iterdir():
+                if child.is_dir() and child.name[:1].isdigit():
+                    versions.add(child.name)
 
     return sorted(versions, key=lambda value: [int(p) for p in value.split(".") if p.isdigit()])
 
 
 def startup_folders(versions):
-    return [SUPPORT_ROOT / version / "Scripts" / "Startup" for version in versions]
+    folders = []
+    for version in versions:
+        for root in SCRIPT_ROOTS:
+            folder = root / version / "Scripts" / "Startup"
+            if folder not in folders:
+                folders.append(folder)
+    return folders
 
 
 def ensure_mailbox():
-    for path in (BRIDGE_DIR, BRIDGE_DIR / "inbox", BRIDGE_DIR / "outbox"):
+    for path in (BRIDGE_DIR, BRIDGE_DIR / "inbox", BRIDGE_DIR / "outbox", BRIDGE_DIR / "doscript"):
         path.mkdir(parents=True, exist_ok=True)
 
 
-def install(versions):
+def install_startup(versions):
     if not PLUGIN.exists():
         raise SystemExit("Missing plugin file: %s" % PLUGIN)
 
-    ensure_mailbox()
     installed = []
     for folder in startup_folders(versions):
         folder.mkdir(parents=True, exist_ok=True)
@@ -73,21 +87,11 @@ def install(versions):
         shutil.copy2(PLUGIN, target)
         installed.append(target)
 
-    print("After Effects bridge installed.")
-    print()
-    print("  Mailbox : %s" % BRIDGE_DIR)
+    print("Installed the legacy mailbox startup script:")
     for target in installed:
-        print("  Startup : %s" % target)
+        print("  %s" % target)
     print()
-    print("Next steps:")
-    print("  1. Quit and reopen After Effects (or run the plugin once via")
-    print("     File > Scripts > Run Script File...).")
-    print("  2. In After Effects, enable Preferences > Scripting & Expressions >")
-    print("     'Allow Scripts to Write Files and Access Network'.")
-    print("  3. Restart opencode so it loads the new MCP server.")
-    print()
-    print("Verify with the aftereffects_status tool, or run:")
-    print("  python3 %s --status" % Path(__file__).resolve())
+    print("This is only needed for AE_MCP_TRANSPORT=mailbox. macOS uses DoScript.")
 
 
 def uninstall(versions):
@@ -106,19 +110,50 @@ def uninstall(versions):
         print("No installed startup script was found.")
 
 
+def _load_server():
+    if str(HERE) not in sys.path:
+        sys.path.insert(0, str(HERE))
+    import mcp_server
+
+    return mcp_server
+
+
 def status():
     ensure_mailbox()
     print("Mailbox: %s" % BRIDGE_DIR)
     print("Inbox  : %s" % (BRIDGE_DIR / "inbox"))
     print("Outbox : %s" % (BRIDGE_DIR / "outbox"))
 
+    try:
+        server = _load_server()
+    except Exception as exc:
+        print("Transport: unknown (%s)" % exc)
+        return
+
+    if server.doscript_enabled():
+        print("Transport: DoScript (macOS; no startup script required)")
+        print("Runner: %s" % server.RUNNER_PATH)
+        try:
+            response = server.bridge_call(server.STATUS_PROBE_CODE, timeout=30)
+        except Exception as exc:
+            print("Live probe: FAILED")
+            print(str(exc))
+            return
+
+        if not response.get("ok"):
+            print("Live probe: script error")
+            print(str(response.get("error") or "unknown error"))
+            return
+
+        print("Live probe: OK")
+        print(json.dumps(response.get("result") or {}, indent=2))
+        return
+
+    print("Transport: mailbox")
     status_file = BRIDGE_DIR / "status.json"
     if not status_file.exists():
         print("Heartbeat: none (After Effects has not run the bridge yet)")
         return
-
-    import json
-    import time
 
     try:
         data = json.loads(status_file.read_text(encoding="utf-8"))
@@ -139,10 +174,15 @@ def main():
         "--version",
         action="append",
         metavar="VERSION",
-        help="Install for a specific After Effects version, e.g. 26.5. Repeatable.",
+        help="Target a specific After Effects version, e.g. 26.5. Repeatable.",
     )
     parser.add_argument("--uninstall", action="store_true", help="Remove the startup script.")
-    parser.add_argument("--status", action="store_true", help="Show the mailbox and heartbeat.")
+    parser.add_argument("--status", action="store_true", help="Show the transport and live status.")
+    parser.add_argument(
+        "--with-startup",
+        action="store_true",
+        help="Also install the legacy mailbox startup script.",
+    )
     args = parser.parse_args()
 
     if args.status:
@@ -150,15 +190,32 @@ def main():
         return
 
     versions = args.version or installed_versions()
-    if not versions:
-        raise SystemExit(
-            "Could not detect an After Effects version. Pass --version (for example --version 26.5)."
-        )
 
     if args.uninstall:
         uninstall(versions)
-    else:
-        install(versions)
+        return
+
+    ensure_mailbox()
+
+    if args.with_startup:
+        if not versions:
+            raise SystemExit(
+                "Could not detect an After Effects version. Pass --version (for example --version 26.5)."
+            )
+        install_startup(versions)
+        return
+
+    print("Mailbox ready: %s" % BRIDGE_DIR)
+    print("macOS uses AppleScript DoScript; no startup script is required.")
+    print()
+    print("Next steps:")
+    print("  1. Open After Effects.")
+    print("  2. Enable Preferences > Scripting & Expressions >")
+    print("     'Allow Scripts to Write Files and Access Network'.")
+    print("  3. Restart opencode so it loads the MCP server.")
+    print()
+    print("Verify with:")
+    print("  python3 %s --status" % Path(__file__).resolve())
 
 
 if __name__ == "__main__":

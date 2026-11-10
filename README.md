@@ -20,11 +20,13 @@ See [`docs/proposal.md`](docs/proposal.md) for the project scope: *Look Decompos
 
 ## After Effects bridge
 
-`ae_mcp/` connects a live After Effects session to opencode over MCP. Install the
-AE-side startup script, then restart After Effects and opencode:
+`ae_mcp/` connects a live After Effects session to opencode over MCP. On macOS it
+uses AppleScript `DoScript`, so no After Effects startup script is needed. Open
+After Effects, enable **Preferences > Scripting & Expressions > Allow Scripts to
+Write Files and Access Network**, restart opencode, and verify:
 
 ```sh
-python3 ae_mcp/install.py
+python3 ae_mcp/install.py --status
 ```
 
 Tools: `aftereffects_status`, `aftereffects_run`, `aftereffects_project_info`,

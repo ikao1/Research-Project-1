@@ -1,15 +1,20 @@
 /* ae_mcp_bridge.jsx
  *
- * After Effects side of the opencode MCP bridge.
+ * Legacy file-mailbox bridge for the opencode MCP server.
  *
- * Install this file in:
- *   ~/Library/Application Support/Adobe/After Effects/<version>/Scripts/Startup/
+ * macOS uses AppleScript DoScript from mcp_server.py and does not need this
+ * file. Install it only for the fallback mailbox transport
+ * (AE_MCP_TRANSPORT=mailbox):
+ *   ~/Library/Preferences/Adobe/After Effects/<version>/Scripts/Startup/
  * or run it once with File > Scripts > Run Script File...
  *
  * It polls a file mailbox, evaluates the ExtendScript it receives, and writes a
  * JSON response. The mailbox lives at:
  *   ~/Library/Application Support/AE-MCP-Bridge/
  * and can be overridden with the AE_MCP_BRIDGE_DIR environment variable.
+ *
+ * Note: file writes from app.scheduleTask callbacks are not reliable in After
+ * Effects 2026 on macOS, so the DoScript transport is preferred.
  */
 
 (function () {
@@ -199,7 +204,7 @@
             } catch (eRemove) {
             }
         }
-        return file.rename(path);
+        return file.rename(target.name);
     }
 
     function writeJson(path, value) {
@@ -365,19 +370,37 @@
         heartbeat(false);
     }
 
-    ensureFolder(BRIDGE);
-    ensureFolder(INBOX);
-    ensureFolder(OUTBOX);
+    function start() {
+        try {
+            ensureFolder(BRIDGE);
+            ensureFolder(INBOX);
+            ensureFolder(OUTBOX);
 
-    $.global.aeLog = aeLog;
-    $.global.__aeMcpPoll = poll;
+            $.global.aeLog = aeLog;
+            $.global.__aeMcpPoll = poll;
 
-    heartbeat(true);
-    appendLog("bridge started (v" + VERSION + ") at " + BRIDGE);
+            heartbeat(true);
+            appendLog("bridge started (v" + VERSION + ") at " + BRIDGE);
 
-    try {
-        app.scheduleTask("__aeMcpPoll()", 200, true);
-    } catch (eSchedule) {
-        appendLog("scheduleTask failed: " + eSchedule);
+            app.scheduleTask("__aeMcpPoll()", 200, true);
+        } catch (eStart) {
+            $.global.__AE_MCP_STARTED = false;
+            try {
+                appendLog("bridge start failed: " + eStart);
+            } catch (eLogStart) {
+            }
+        }
+    }
+
+    $.global.__aeMcpStart = start;
+
+    if (!$.global.__AE_MCP_STARTED) {
+        $.global.__AE_MCP_STARTED = true;
+        try {
+            app.scheduleTask("__aeMcpStart()", 1000, false);
+        } catch (eScheduleStart) {
+            $.global.__AE_MCP_STARTED = false;
+            start();
+        }
     }
 })();
