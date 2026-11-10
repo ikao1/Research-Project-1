@@ -23,6 +23,9 @@ reference media → analyzer (Python/PIL) → analysis JSON → AE builder (Exte
 - `test_stills/` — deterministic base plate + 10 ground-truth looks
   (JSON + rendered PNG + `ground_truth.aep`). The parameter readback of every
   GEN comp was verified against its JSON: 0 mismatches.
+- Since then (Nov 10): the After Effects panel (`ae_panel/`), auto masks (`automask.py`),
+  the how-to guide (`guide.py`), and scoring (`score.py`, mean error 0.150). Open issues are
+  listed in `AGENTS.md` at the project root.
 
 ## Layout
 
@@ -34,6 +37,15 @@ reference media → analyzer (Python/PIL) → analysis JSON → AE builder (Exte
 | `look_decomposer/ae/build_look_comp.jsx` | Run Script File entry point |
 | `look_decomposer/ae_transport.py` | sends JSX to live AE via the DoScript bridge |
 | `look_decomposer/build.py` | CLI: build a comp from analysis JSON |
+| `look_decomposer/analyzer.py` | estimates a look from an image (the core of the tool) |
+| `look_decomposer/score.py` | scores predictions against the 10 test looks |
+| `look_decomposer/guide.py` | how-to markdown from an analysis |
+| `look_decomposer/automask.py` | auto masks: subject, people, tones, colors |
+| `look_decomposer/install_panel.py` | installs the After Effects panel loader |
+| `look_decomposer/ae_panel/LookDecomposer.jsx` | the After Effects panel |
+| `look_decomposer/tools/panel_check.py` | reloads the panel in open AE and checks it |
+| `look_decomposer/tools/make_icons.py` | draws the panel icons |
+| `look_decomposer/tools/automask_vision.swift` | Apple Vision helper for subject and people masks |
 | `look_decomposer/make_base_plate.py` | generates the neutral test plate |
 | `look_decomposer/generate_test_stills.py` | renders ground-truth looks in AE |
 | `test_stills/looks/*.json` | the 10 ground-truth looks |

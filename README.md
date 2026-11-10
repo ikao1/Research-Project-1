@@ -12,6 +12,8 @@ See [`docs/proposal.md`](docs/proposal.md) for the project scope: *Look Decompos
 | --- | --- |
 | `docs/` | Research notes, papers, write-ups |
 | `ae_mcp/` | MCP bridge that drives a live After Effects session (see [`ae_mcp/README.md`](ae_mcp/README.md)) |
+| `look_decomposer/` | Look Decomposer: analyzes a look and rebuilds it in After Effects (see [`look_decomposer/README.md`](look_decomposer/README.md)) |
+| `AGENTS.md` | Project notes for coding agents: status, decisions, rules, next steps |
 | `logs/commits.log` | Auto-generated log of every commit (via git hook) |
 | `logs/commands.log` | Log of commands you record with the helper script |
 | `scripts/log-command.sh` | Record a command you ran |

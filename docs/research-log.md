@@ -30,3 +30,20 @@ Record findings, hypotheses, and experiment results here.
   to color noise).
 - **Next step:** Nov 17 — analyzer (PIL statistics on calibration regions),
   rule-based guide generation, scoring against the ground-truth pairs.
+
+### 2026-11-10 — Panel, auto masks, and the transfer test
+- **Goal:** a usable After Effects panel that applies a reference look to uploaded footage
+  and lets the user adjust it; auto masks for local edits.
+- **Method:** ScriptUI panel (v16) tested in After Effects by reading rendered pixels and
+  effect values. The reference look was applied to the raw base plate and, for comparison,
+  to the already-graded still. Auto masks were tested on a photo with several people.
+- **Result:**
+  - The look on the raw plate is closer to the reference render (mean absolute error 19.3,
+    raw plate 24.4). The same look on the graded still gives 22.4 and is over-saturated
+    (colour spread 85 vs 64). The reference must be applied to the ungraded footage.
+  - Analyzer on the 10 test looks: mean normalized error 0.150 (was 0.194 before the
+    split-tone gate and the crash fix).
+  - Subject mask separated both foreground characters on a photo; the People mode missed
+    the illustrated characters.
+- **Next step:** verify the docked panel's scroll bar after restarting After Effects; then
+  the Nov 17 analyzer work (glow, exposure and gamma, split-tone strength).
