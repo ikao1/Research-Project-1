@@ -53,3 +53,17 @@ M	README.md
 A	docs/proposal.md
 M	logs/commands.log
 
+==================================================================
+Date:    2026-11-09 20:47:05
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Add After Effects MCP bridge
+Files:
+M	README.md
+A	ae_mcp/README.md
+A	ae_mcp/ae_plugin/ae_mcp_bridge.jsx
+A	ae_mcp/install.py
+A	ae_mcp/mcp_server.py
+A	ae_mcp/tests/test_bridge.py
+M	logs/commands.log
+
