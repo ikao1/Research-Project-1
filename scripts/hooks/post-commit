@@ -1,0 +1,18 @@
+#!/bin/sh
+# Automatically append commit details to logs/commits.log.
+ROOT="$(git rev-parse --show-toplevel)"
+LOG="$ROOT/logs/commits.log"
+
+mkdir -p "$ROOT/logs"
+
+{
+  echo "=================================================================="
+  echo "Commit:  $(git rev-parse --short HEAD)"
+  echo "Date:    $(date '+%Y-%m-%d %H:%M:%S')"
+  echo "Branch:  $(git rev-parse --abbrev-ref HEAD)"
+  echo "Author:  $(git log -1 --pretty=format:'%an <%ae>')"
+  echo "Message: $(git log -1 --pretty=format:'%s')"
+  echo "Files:"
+  git show --stat --name-status --pretty=format:'' HEAD
+  echo
+} >> "$LOG"

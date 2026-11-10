@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+._*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Editors
+.vscode/
+.idea/
+
+# Data / large artifacts (uncomment as needed)
+# data/raw/
+# *.csv
+# *.zip
+# *.mov
+# *.mp4
+
+# Local environment
+.env
