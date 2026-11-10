@@ -2,6 +2,10 @@
 
 A version-controlled research workspace. Everything lives inside this folder: documents, notes, code, and an automatic record of commits and commands.
 
+## Proposal
+
+See [`docs/proposal.md`](docs/proposal.md) for the project scope: *Look Decomposer*, an After Effects re-compositing tool.
+
 ## Layout
 
 | Path | Purpose |
@@ -32,14 +36,12 @@ To record a command you ran:
 
 Then commit as usual to store it.
 
-## Connect to GitHub
+## GitHub
 
-This folder is already a local git repo on branch `main`, and `gh` is authenticated as **ikao1**.
+Remote: https://github.com/ikao1/Research-Project-1 (public).
 
-When you are ready to create the remote repo:
+Push changes with:
 
 ```sh
-gh repo create "Research Project 1" --private --source=. --remote=origin --push
+git push
 ```
-
-Use `--public` instead of `--private` if you want it public. After that, normal `git push` works.

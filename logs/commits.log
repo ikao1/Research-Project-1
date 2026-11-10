@@ -43,3 +43,13 @@ Message: Log project initialization
 Files:
 M	logs/commands.log
 
+==================================================================
+Date:    2026-11-09 20:37:52
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Add research proposal for Look Decomposer
+Files:
+M	README.md
+A	docs/proposal.md
+M	logs/commands.log
+
