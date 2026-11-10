@@ -16,3 +16,22 @@ A	scripts/hooks/post-commit
 A	scripts/log-command.sh
 A	scripts/setup.sh
 
+==================================================================
+Commit:  e2fb7ba
+Date:    2026-11-09 20:25:27
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Update commit log
+Files:
+M	logs/commits.log
+
+==================================================================
+Date:    2026-11-09 20:26:46
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Fold commit log into each commit via post-commit hook
+Files:
+M	README.md
+M	logs/commits.log
+M	scripts/hooks/post-commit
+

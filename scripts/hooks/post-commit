@@ -1,13 +1,14 @@
 #!/bin/sh
-# Automatically append commit details to logs/commits.log.
+# Append commit details to logs/commits.log and fold the log into the commit.
+# A guard env var prevents the follow-up amend from re-triggering this hook.
+[ -n "${RESEARCH_LOG_GUARD:-}" ] && exit 0
+
 ROOT="$(git rev-parse --show-toplevel)"
 LOG="$ROOT/logs/commits.log"
-
 mkdir -p "$ROOT/logs"
 
 {
   echo "=================================================================="
-  echo "Commit:  $(git rev-parse --short HEAD)"
   echo "Date:    $(date '+%Y-%m-%d %H:%M:%S')"
   echo "Branch:  $(git rev-parse --abbrev-ref HEAD)"
   echo "Author:  $(git log -1 --pretty=format:'%an <%ae>')"
@@ -16,3 +17,6 @@ mkdir -p "$ROOT/logs"
   git show --stat --name-status --pretty=format:'' HEAD
   echo
 } >> "$LOG"
+
+git add "$LOG"
+RESEARCH_LOG_GUARD=1 git commit --amend --no-edit --no-verify --quiet || true

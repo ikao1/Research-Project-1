@@ -22,13 +22,15 @@ git add -A
 git commit -m "describe what changed"
 ```
 
-Every commit is automatically appended to `logs/commits.log`.
+Every commit is automatically appended to `logs/commits.log` and included in that commit, so `git status` stays clean.
 
 To record a command you ran:
 
 ```sh
 ./scripts/log-command.sh "python experiment.py --seed 42"
 ```
+
+Then commit as usual to store it.
 
 ## Connect to GitHub
 
