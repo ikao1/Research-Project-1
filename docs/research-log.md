@@ -107,3 +107,17 @@ Record findings, hypotheses, and experiment results here.
 - **Next step:** the user drags the button where they want it. A docked panel
   tab may still return at launch if it is saved in the workspace; close the tab
   and save the workspace to stop that.
+
+### 2026-11-23 — Launcher button replaced by an After Effects workspace
+- **Goal:** reach the Look Decomposer through a workspace instead of the
+  floating launcher button.
+- **Method:** removed the launcher button and its startup loaders (both files
+  per version, 26.0 and 26.5) and reverted install_panel.py, make_icons.py and
+  the launch icon. After Effects has no script API for workspaces, so the
+  workspace is made by hand: Window > Look Decomposer to dock the panel,
+  arrange it, then Window > Workspace > Save as New Workspace; switching to it
+  brings the panel back. The Window-menu panel loader stays installed.
+- **Result:** no launcher artifacts left on disk; only the Window menu panel
+  loader and File > Scripts > Open Look Decomposer remain.
+- **Next step:** the user saves the workspace. Note the workspace also decides
+  whether the panel comes back when After Effects launches.

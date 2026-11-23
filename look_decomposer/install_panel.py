@@ -1,24 +1,20 @@
 #!/usr/bin/env python3
 """Install the Look Decomposer panel into After Effects.
 
-Writes small loaders into each After Effects user Scripts folder:
+Writes two small loaders into each After Effects user Scripts folder:
 
     ~/Library/Preferences/Adobe/After Effects/<version>/Scripts/ScriptUI Panels/Look Decomposer.jsx
         -> Window > Look Decomposer (a dockable panel, shown as a tab)
     ~/Library/Preferences/Adobe/After Effects/<version>/Scripts/Open Look Decomposer.jsx
         -> File > Scripts > Open Look Decomposer (opens the window)
-    ~/Library/Preferences/Adobe/After Effects/<version>/Scripts/Look Decomposer Button.jsx
-        -> File > Scripts > Look Decomposer Button (a small icon button window)
-    ~/Library/Preferences/Adobe/After Effects/<version>/Scripts/Startup/Look Decomposer Button.jsx
-        -> opens the small icon button window when After Effects starts
 
-The loaders point at this project folder and at a Python interpreter that has
+The loader points at this project folder and at a Python interpreter that has
 Pillow installed. The panel code itself is read from the project each time
 After Effects starts, so edits to ae_panel/LookDecomposer.jsx need only a
 restart of After Effects.
 
-The icon button sits at the top left of the screen; drag it wherever you want.
-Click it to open the Look Decomposer window.
+Open the panel from Window > Look Decomposer, or from
+File > Scripts > Open Look Decomposer, in After Effects.
 
 Usage:
     python3 -m look_decomposer.install_panel               # install
@@ -42,8 +38,6 @@ ANALYZER = HERE / "analyzer.py"
 PLATE = HERE.parent / "test_stills" / "base_plate.png"
 LOADER_NAME = "Look Decomposer.jsx"
 MENU_LOADER_NAME = "Open Look Decomposer.jsx"
-BUTTON_LOADER_NAME = "Look Decomposer Button.jsx"
-STARTUP_NAME = "Look Decomposer Button.jsx"
 PREFS_ROOT = Path.home() / "Library" / "Preferences" / "Adobe" / "After Effects"
 
 LOADER_TEMPLATE = r'''/*  Look Decomposer loader. Written by look_decomposer/install_panel.py.
@@ -66,72 +60,6 @@ LOADER_TEMPLATE = r'''/*  Look Decomposer loader. Written by look_decomposer/ins
     var run = eval(source);
     run(thisObj, LD_ROOT, LD_PYTHON);
 })(this);
-'''
-
-BUTTON_TEMPLATE = r'''/*  Look Decomposer launcher button. Written by look_decomposer/install_panel.py.
-    A small window with an icon button that opens the Look Decomposer window.
-*/
-(function () {
-    var LD_ROOT = __LD_ROOT__;
-    var LD_PYTHON = __LD_PYTHON__;
-    var ICON = new File(LD_ROOT + "/ae_panel/icons/launch.png");
-
-    var prev = $.global.LookDecomposerButton;
-    if (prev && prev.win) {
-        try { prev.win.show(); return prev.win; } catch (e) { }
-    }
-
-    function openTool() {
-        try {
-            var panelFile = new File(LD_ROOT + "/ae_panel/LookDecomposer.jsx");
-            if (!panelFile.exists) {
-                alert("Look Decomposer: the panel code was not found at:\n" + panelFile.fsName +
-                      "\n\nRe-run install_panel.py from the project.");
-                return;
-            }
-            panelFile.encoding = "UTF-8";
-            panelFile.open("r");
-            var source = panelFile.read();
-            panelFile.close();
-            var run = eval(source);
-            run(undefined, LD_ROOT, LD_PYTHON);
-        } catch (e) {
-            alert("Look Decomposer could not open:\n" + e.toString());
-        }
-    }
-
-    var win = new Window("palette", "Look Decomposer", [8, 44, 62, 104]);
-    win.margins = 3;
-    win.spacing = 0;
-    try { win.alwaysOnTop = true; } catch (e) { }
-    var b;
-    if (ICON.exists) {
-        b = win.add("iconbutton", undefined, ICON, {style: "toolbutton"});
-    } else {
-        b = win.add("button", undefined, "LD");
-    }
-    b.preferredSize = [30, 30];
-    b.minimumSize = [30, 30];
-    b.maximumSize = [30, 30];
-    b.helpTip = "Open the Look Decomposer";
-    b.onClick = openTool;
-
-    $.global.LookDecomposerButton = {win: win, open: openTool};
-    win.show();
-    return win;
-})();
-'''
-
-STARTUP_TEMPLATE = r'''/*  Look Decomposer button startup loader. Written by look_decomposer/install_panel.py.
-    Shows the small icon button window when After Effects starts.
-*/
-(function () {
-    try {
-        $.evalFile(new File(__BUTTON_PATH__));
-    } catch (e) {
-        $.writeln("Look Decomposer button: " + e.toString());
-    }
-})();
 '''
 
 
@@ -157,20 +85,8 @@ def menu_loader_path(version_dir):
     return version_dir / "Scripts" / MENU_LOADER_NAME
 
 
-def button_loader_path(version_dir):
-    """Top-level Scripts folder: File > Scripts > Look Decomposer Button."""
-    return version_dir / "Scripts" / BUTTON_LOADER_NAME
-
-
-def startup_loader_path(version_dir):
-    """Startup Scripts folder: runs when After Effects starts (Preferences root,
-    which After Effects reads and recreates itself)."""
-    return version_dir / "Scripts" / "Startup" / STARTUP_NAME
-
-
 def all_loader_paths(version_dir):
-    return [loader_path(version_dir), menu_loader_path(version_dir),
-            button_loader_path(version_dir), startup_loader_path(version_dir)]
+    return [loader_path(version_dir), menu_loader_path(version_dir)]
 
 
 def has_pillow(python):
@@ -191,16 +107,6 @@ def make_loader(python):
     return (LOADER_TEMPLATE
             .replace("__LD_ROOT__", json.dumps(str(PROJECT_DIR)))
             .replace("__LD_PYTHON__", json.dumps(str(python))))
-
-
-def make_button_loader(python):
-    return (BUTTON_TEMPLATE
-            .replace("__LD_ROOT__", json.dumps(str(PROJECT_DIR)))
-            .replace("__LD_PYTHON__", json.dumps(str(python))))
-
-
-def make_startup_loader(button_path):
-    return STARTUP_TEMPLATE.replace("__BUTTON_PATH__", json.dumps(str(button_path)))
 
 
 def install(python, versions):
@@ -225,27 +131,19 @@ def install(python, versions):
         return 1
 
     text = make_loader(python)
-    button_text = make_button_loader(python)
     for version in versions:
-        startup_text = make_startup_loader(button_loader_path(version))
         for target in all_loader_paths(version):
             target.parent.mkdir(parents=True, exist_ok=True)
-            if target == button_loader_path(version):
-                target.write_text(button_text, encoding="utf-8")
-            elif target == startup_loader_path(version):
-                target.write_text(startup_text, encoding="utf-8")
-            else:
-                target.write_text(text, encoding="utf-8")
+            target.write_text(text, encoding="utf-8")
             print("Installed: %s" % target)
 
     print()
     print("Next steps:")
-    print("  1. Restart After Effects. A small icon button appears at the top left;")
-    print("     click it to open the Look Decomposer window.")
+    print("  1. Restart After Effects.")
     print("  2. Turn on Preferences > Scripting & Expressions >")
     print("     'Allow Scripts to Write Files and Access Network'.")
-    print("  3. Also available: Window > Look Decomposer (docks as a tab),")
-    print("     and File > Scripts > Open Look Decomposer.")
+    print("  3. Open the panel with Window > Look Decomposer (docks as a tab),")
+    print("     or File > Scripts > Open Look Decomposer (opens the window).")
     return 0
 
 
@@ -272,9 +170,7 @@ def status(python, versions):
         return 0
     for version in versions:
         for label, target in (("Window menu", loader_path(version)),
-                              ("File > Scripts", menu_loader_path(version)),
-                              ("File > Scripts", button_loader_path(version)),
-                              ("Startup", startup_loader_path(version))):
+                              ("File > Scripts", menu_loader_path(version))):
             state = "installed" if target.exists() else "not installed"
             print("AE %-8s %-14s: %s (%s)" % (version.name, label, state, target))
     return 0

@@ -116,10 +116,6 @@ def grain(d, img):
             placed += 1
 
 
-def launch(d, img):
-    d.polygon([(52, 10), (22, 54), (46, 54), (38, 86), (72, 40), (48, 40)], fill=INK)
-
-
 def contrast(d, img):
     d.ellipse((14, 14, 82, 82), outline=INK, width=5)
     d.pieslice((14, 14, 82, 82), 90, 270, fill=DARK)
@@ -258,7 +254,7 @@ ICONS = {
     "blacks": blacks, "sharpen": sharpen, "vibrance": vibrance, "mix": mix,
     "gauge": gauge, "hue_shift": hue_shift, "value_half": value_half,
     "area": area, "edge_soft": edge_soft, "move_h": move_h, "move_v": move_v,
-    "opacity": opacity, "blend": blend, "grow": grow, "launch": launch,
+    "opacity": opacity, "blend": blend, "grow": grow,
 }
 
 
