@@ -89,3 +89,21 @@ Record findings, hypotheses, and experiment results here.
   the tests) but is no longer reachable from the panel.
 - **Result:** `panel_check.py` 9 of 9.
 - **Next step:** none.
+
+### 2026-11-23 — A launcher button with an icon, and no auto-open panel
+- **Goal:** a button the user clicks to open the tool (the panel must not open
+  by itself at launch).
+- **Method:** a small always-on-top palette window with an icon button (new
+  `launch.png` lightning icon drawn by make_icons.py). The button evals the
+  panel source and opens the full window when clicked. Installed by
+  install_panel.py as File > Scripts > Look Decomposer Button, and a startup
+  loader shows only the button window when After Effects starts - the panel
+  itself never auto-opens. Duplicate presses reuse the same button window
+  through $.global.
+- **Result:** tested live in AE 26.5: button window, icon button, and
+  click-open all work (panel v18 opened). Note: After Effects cannot add a
+  button to its own toolbar next to the Home button from a script; this
+  floating icon button is the closest possible, and it can be dragged anywhere.
+- **Next step:** the user drags the button where they want it. A docked panel
+  tab may still return at launch if it is saved in the workspace; close the tab
+  and save the workspace to stop that.

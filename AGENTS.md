@@ -15,8 +15,10 @@ rebuilds its look inside After Effects as sliders the user can edit.
 - `look_decomposer/ae/look_fx.jsx`: After Effects effect engine (used by the panel and builder).
 - `look_decomposer/ae_panel/LookDecomposer.jsx`: the panel (four tabs). Icons are in
   `ae_panel/icons/`, drawn by `tools/make_icons.py`.
-- `look_decomposer/install_panel.py`: puts the panel loader in the After Effects 26.0 and
-  26.5 ScriptUI Panels folders. Options: `--status`, `--uninstall`.
+- `look_decomposer/install_panel.py`: puts the panel loaders in the After Effects 26.0 and
+  26.5 ScriptUI Panels folders, the File > Scripts folder (Open Look Decomposer and
+  Look Decomposer Button), and the Startup Scripts folder (opens only the small icon
+  button window at launch, never the panel itself). Options: `--status`, `--uninstall`.
 - `look_decomposer/automask.py` with `tools/automask_vision.swift`: auto masks.
   `python3 -m look_decomposer.automask --build` compiles the Vision helper into
   `look_decomposer/bin/` (git-ignored, machine-specific).
@@ -45,9 +47,11 @@ Works, verified in After Effects 26.5 by reading rendered pixels and effect valu
 - `tools/panel_check.py`: 9 of 9 checks pass.
 - "Use this composition" tested live: correct status text, layer token written to its
   comment, layer selected, panel switched to tab 2. Test comp and footage removed after.
-- No startup auto-open: a startup loader made the panel appear twice at launch (the docked
-  panel is restored with the workspace, and the startup script opened a second floating
-  window). The feature was removed.
+- The launcher: a small icon-button window (lightning icon) that opens the panel when
+  clicked. It appears at the top left when After Effects starts (startup loader) and is
+  also in File > Scripts. Tested live: button window, icon, and click-open all work.
+  The panel itself never opens on its own; the docked panel may still come back if it is
+  part of a saved workspace (close its tab and save the workspace to stop that).
 
 Open or unverified:
 - **Docked panel (Window > Look Decomposer) shows no scroll bar** for the user. Code gives
