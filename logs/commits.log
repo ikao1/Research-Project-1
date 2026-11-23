@@ -223,3 +223,13 @@ M	AGENTS.md
 M	docs/research-log.md
 M	look_decomposer/ae_panel/LookDecomposer.jsx
 
+==================================================================
+Date:    2026-11-23 16:03:51
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Open the Look Decomposer window automatically when After Effects starts
+Files:
+M	AGENTS.md
+M	docs/research-log.md
+M	look_decomposer/install_panel.py
+

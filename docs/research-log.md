@@ -64,3 +64,15 @@ Record findings, hypotheses, and experiment results here.
 - **Next step:** after an After Effects restart, check the docked panel's v17
   look, the button, and the scroll bar. Then the overdue analyzer work (glow,
   exposure and gamma, split-tone strength).
+
+### 2026-11-23 — Startup loader: the panel opens when After Effects launches
+- **Goal:** the Look Decomposer is there right after After Effects opens, with no
+  menu digging.
+- **Method:** `install_panel.py` now also writes a startup loader into
+  `Scripts/Startup/` in both the Preferences and Documents roots (AE runs both,
+  depending on version), for AE 26.0 and 26.5. It loads the panel source and
+  opens it as a floating window; failures are logged with `$.writeln` instead of
+  an alert.
+- **Result:** install and `--status` verified; all four startup loaders present.
+  The auto-open itself needs an After Effects restart to be seen.
+- **Next step:** restart After Effects and confirm the window opens on its own.

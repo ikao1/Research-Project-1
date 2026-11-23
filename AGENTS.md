@@ -15,8 +15,10 @@ rebuilds its look inside After Effects as sliders the user can edit.
 - `look_decomposer/ae/look_fx.jsx`: After Effects effect engine (used by the panel and builder).
 - `look_decomposer/ae_panel/LookDecomposer.jsx`: the panel (four tabs). Icons are in
   `ae_panel/icons/`, drawn by `tools/make_icons.py`.
-- `look_decomposer/install_panel.py`: puts the panel loader in the After Effects 26.0 and
-  26.5 ScriptUI Panels folders. Options: `--status`, `--uninstall`.
+- `look_decomposer/install_panel.py`: puts the panel loaders in the After Effects 26.0 and
+  26.5 ScriptUI Panels folders, the File > Scripts folder, and the Startup Scripts folders
+  (Preferences and Documents mirrors) so the window opens when After Effects launches.
+  Options: `--status`, `--uninstall`.
 - `look_decomposer/automask.py` with `tools/automask_vision.swift`: auto masks.
   `python3 -m look_decomposer.automask --build` compiles the Vision helper into
   `look_decomposer/bin/` (git-ignored, machine-specific).
@@ -43,6 +45,8 @@ Works, verified in After Effects 26.5 by reading rendered pixels and effect valu
 - `tools/panel_check.py`: 9 of 9 checks pass.
 - "Use this composition" tested live: correct status text, layer token written to its
   comment, layer selected, panel switched to tab 2. Test comp and footage removed after.
+- A startup loader opens the floating window when After Effects launches (both
+  Preferences and Documents startup folders, AE 26.0 and 26.5).
 
 Open or unverified:
 - **Docked panel (Window > Look Decomposer) shows no scroll bar** for the user. Code gives
