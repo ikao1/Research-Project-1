@@ -19,7 +19,7 @@
 (function (thisObj, LD_ROOT, LD_PYTHON) {
 
     var PANEL_TITLE = "Look Decomposer";
-    var PANEL_VERSION = 16;   // bump when the panel changes; older windows are not reused
+    var PANEL_VERSION = 17;   // bump when the panel changes; older windows are not reused
     var ENGINE_FILE = new File(LD_ROOT + "/ae/look_fx.jsx");
     var REPO_ROOT = new Folder(LD_ROOT).parent.fsName;
     var TEMP_DIR = new Folder(Folder.temp.fsName + "/LookDecomposer");
@@ -380,6 +380,48 @@
         }
         S.workToken = st.id;
         return st.id;
+    }
+
+    /* The big header button: starts the tool on the composition that is open. The
+       selected footage layer becomes the working footage (otherwise the topmost
+       footage layer), a loaded reference look is applied when the layer has no look
+       yet, and the sliders act on it at once. */
+    function useThisComposition() {
+        var comp = activeComp();
+        if (!comp) {
+            setStatus("Open a composition first, then press 'Use this composition'.");
+            return;
+        }
+        var chosen = null;
+        var sel = comp.selectedLayers;
+        for (var i = 0; i < sel.length; i++) {
+            if (isFootageLayer(sel[i])) { chosen = sel[i]; break; }
+        }
+        if (!chosen) {
+            for (var j = 1; j <= comp.numLayers; j++) {
+                if (isFootageLayer(comp.layer(j))) { chosen = comp.layer(j); break; }
+            }
+        }
+        if (!chosen) {
+            ui.tabs.selection = ui.tabUpload;
+            showCurrentTab();
+            setStatus("'" + comp.name + "' has no footage to grade yet. Upload some in tab 1 (step B).");
+            return;
+        }
+        var st = ensureState(chosen);
+        var msg = "Working on '" + chosen.name + "' in '" + comp.name + "'.";
+        if (S.reference && !st.analysis) {
+            applyReferenceTo(chosen);
+            msg += " Reference look applied: " + S.reference.name + ".";
+        } else {
+            tokenOf(chosen);
+        }
+        for (var k = 1; k <= comp.numLayers; k++) { comp.layer(k).selected = false; }
+        chosen.selected = true;
+        refreshAll();
+        ui.tabs.selection = ui.tabAdjust;
+        showCurrentTab();
+        setStatus(msg + " Adjust it in tab 2.");
     }
 
     /* Imports a file as a new footage item every time (import never reuses items). */
@@ -1269,10 +1311,10 @@
     var SCROLL_MARGIN = 8;     // space above the first row and below the last (body margins)
     var SCROLL_OFFSCREEN = -10000;
     var SCROLL_DEFAULT_H = 380;  // body height until the real panel height is known
-    /* Height of everything above and below a tab's body (title, status, tab header),
-       measured in the floating window. The docked panel's own height is read from
-       ui.win.size; that reading was checked against the live docked panel (941 px). */
-    var PANEL_CHROME = 172;
+    /* Height of everything above and below a tab's body (header, working label,
+       status box, tab header), measured in the floating window. fitBodies() reads
+       the real tab position instead, so this is only a fallback. */
+    var PANEL_CHROME = 216;
     var scrollViews = [];
 
     function scrollBodyOf(tab) {
@@ -1414,13 +1456,19 @@
     }
 
     /* A docked panel has the height After Effects gives it. Its bodies are capped to
-       that height, so the scroll range matches what is visible. Floating windows keep
-       their own fixed height. */
+       that height, so the scroll range matches what is visible. The chrome height
+       (header, labels, tab header) is read from the tabs' real position, so it stays
+       right when the header changes. Floating windows keep their own fixed height. */
     function fitBodies() {
         if (!(thisObj instanceof Panel)) { return; }
         var panelH = ui.win.size[1];
         if (!(panelH > 200)) { panelH = SCROLL_DEFAULT_H + PANEL_CHROME; }
-        setBodyHeight(Math.max(120, Math.floor(panelH - PANEL_CHROME)));
+        var chrome = PANEL_CHROME;
+        try {
+            var t = ui.tabs.location[1];
+            if (t > 0) { chrome = t + 26; }
+        } catch (e) { }
+        setBodyHeight(Math.max(120, Math.floor(panelH - chrome)));
     }
 
     /* Applies the scroll bar of the tab that is showing. */
@@ -1507,6 +1555,39 @@
         return e;
     }
 
+    /* Accent colors used across the panel (r, g, b, a in 0..1). */
+    var COLOR_HEADER_BG = [0.15, 0.16, 0.19, 1];
+    var COLOR_HEADER_TEXT = [0.93, 0.95, 0.97, 1];
+    var COLOR_ACCENT = [0.14, 0.35, 0.64, 1];
+    var COLOR_SECTION = [0.2, 0.38, 0.62, 1];
+    var COLOR_MUTED = [0.55, 0.6, 0.66, 1];
+    var COLOR_WHITE = [1, 1, 1, 1];
+    var COLOR_STATUS_BG = [0.94, 0.95, 0.93, 1];
+
+    function tintBackground(ctl, color) {
+        try {
+            ctl.graphics.backgroundColor = ctl.graphics.newBrush(
+                ScriptUIGraphics.BrushType.SOLID_COLOR, color);
+        } catch (e) { }
+    }
+
+    function tintText(ctl, color) {
+        try {
+            ctl.graphics.foregroundColor = ctl.graphics.newPen(
+                ScriptUIGraphics.PenType.SOLID_COLOR, color, 1);
+        } catch (e) { }
+    }
+
+    /* A big, bold, accent-colored button for the main actions. */
+    function stylePrimary(btn, tall) {
+        btn.graphics.font = ScriptUI.newFont("Arial", "BOLD", 12);
+        btn.preferredSize = [280, tall ? 34 : 30];
+        try {
+            tintBackground(btn, COLOR_ACCENT);
+            tintText(btn, COLOR_WHITE);
+        } catch (e) { }
+    }
+
     function setupTab(tab) {
         tab.orientation = "column";
         tab.alignChildren = ["fill", "top"];
@@ -1526,6 +1607,7 @@
         }
         var h = container.add("statictext", undefined, title);
         h.graphics.font = isSub ? FONT_SUB : FONT_SECTION;
+        tintText(h, COLOR_SECTION);
         return container;
     }
 
@@ -1565,6 +1647,7 @@
                          "and the look is applied to your footage.", 44);
         var refBtn = refSec.add("button", undefined, "Upload reference look...");
         refBtn.onClick = safe(uploadReference);
+        stylePrimary(refBtn, false);
         ui.refLabel = refSec.add("statictext", undefined, "Reference: none yet");
         ui.refResult = helpText(refSec, "", 90);
 
@@ -1574,6 +1657,7 @@
                           "change it straight away.", 58);
         var footBtn = footSec.add("button", undefined, "Upload footage...");
         footBtn.onClick = safe(uploadFootage);
+        stylePrimary(footBtn, false);
         ui.workLabel = footSec.add("statictext", undefined, "Working on: nothing yet");
         var next = footSec.add("button", undefined, "Go to 2 Adjust");
         next.onClick = safe(function () { ui.tabs.selection = ui.tabAdjust; showCurrentTab(); });
@@ -1664,6 +1748,7 @@
         ui.autoInvert = autoPanel.add("checkbox", undefined, "Invert (select everything else)");
         var autoButton = autoPanel.add("button", undefined, "Create auto-masked region");
         autoButton.onClick = safe(createAutoRegion);
+        stylePrimary(autoButton, false);
         helpText(autoPanel, "Uses the working footage. Subject and People use Apple Vision on " +
                             "this Mac. Color range uses the Colors choice in section 2. " +
                             "Section 2 applies only inside the mask.", 70);
@@ -1723,14 +1808,46 @@
         win.spacing = 6;
         ui.win = win;
 
-        var title = win.add("statictext", undefined, PANEL_TITLE);
+        /* Header band: title and version on a dark background, with the main action
+           button right below, so the tool can be started with one obvious press. */
+        var header = win.add("panel");
+        header.alignment = ["fill", "top"];
+        header.margins = 10;
+        header.spacing = 6;
+        tintBackground(header, COLOR_HEADER_BG);
+
+        var titleRow = header.add("group");
+        titleRow.orientation = "row";
+        titleRow.alignChildren = ["left", "center"];
+        titleRow.alignment = ["fill", "top"];
+
+        var title = titleRow.add("statictext", undefined, PANEL_TITLE);
         title.graphics.font = FONT_TITLE;
+        tintText(title, COLOR_HEADER_TEXT);
+
+        var ver = titleRow.add("statictext", undefined, "v" + PANEL_VERSION);
+        ver.graphics.font = FONT_SUB;
+        ver.alignment = ["right", "center"];
+        tintText(ver, COLOR_MUTED);
+
+        ui.useButton = header.add("button", undefined, "Use this composition");
+        ui.useButton.alignment = ["fill", "top"];
+        ui.useButton.preferredSize = [300, 34];
+        ui.useButton.minimumSize = [280, 34];
+        stylePrimary(ui.useButton, true);
+        ui.useButton.helpTip = "Starts the tool on the composition that is open: its footage " +
+                               "becomes the working footage, a loaded reference look is applied, " +
+                               "and the sliders act on it right away.";
+        ui.useButton.onClick = safe(useThisComposition);
+
         ui.topTarget = win.add("statictext", undefined, "Working on: nothing yet");
         ui.status = win.add("edittext", undefined,
-                            "Step 1: upload a reference look (A), then your footage (B).",
+                            "Open a composition and press 'Use this composition' to start. " +
+                            "Or upload a reference look (A), then your footage (B).",
                             {multiline: true, readonly: true, scrollable: true});
         ui.status.alignment = ["fill", "top"];
         ui.status.preferredSize = [300, 60];
+        tintBackground(ui.status, COLOR_STATUS_BG);
 
         ui.tabs = win.add("tabbedpanel");
         ui.tabs.alignment = ["fill", "fill"];
@@ -1818,6 +1935,7 @@
         ui: ui,
         fns: {
             setReference: setReference, addFootageFiles: addFootageFiles,
+            useThisComposition: useThisComposition,
             applyReferenceTo: applyReferenceTo, targetLayer: targetLayer,
             sourceFrameForMask: sourceFrameForMask, createAutoRegion: createAutoRegion,
             renderLook: renderLook, loadLookState: loadLookState, effectiveSection: effectiveSection,

@@ -28,19 +28,28 @@ rebuilds its look inside After Effects as sliders the user can edit.
   checks it. See Checklists.
 - `logs/commits.log` is written by a post-commit hook that amends each commit. This is normal.
 
-## Status (2026-11-10)
+## Status (2026-11-23)
 Works, verified in After Effects 26.5 by reading rendered pixels and effect values:
 - Analyzer on the 10 test looks: mean normalized error 0.150 (`score.py`).
-- Panel v16: upload reference and footage (the reference is applied at once), per-part sliders
-  with checkboxes, Strength, Lumetri grade, regions (hue, value, saturation, opacity, blend),
-  auto masks (Vision subject/people; luma and color ranges), icons with tooltips, sections.
+- Panel v17: dark header band with title and version, a big always-visible "Use this
+  composition" button (starts the tool on the open comp: targets the selected or topmost
+  footage layer, applies a loaded reference when the layer has no look, selects it and
+  jumps to tab 2), tinted status box, colored section headings, accent-colored primary
+  buttons (Upload reference, Upload footage, Create auto-masked region).
+- Upload reference and footage (the reference is applied at once), per-part sliders with
+  checkboxes, Strength, Lumetri grade, regions (hue, value, saturation, opacity, blend),
+  auto masks (Vision subject/people; luma and color ranges), icons with tooltips.
 - Floating window (File > Scripts) scrolls on every tab with its own bar.
 - `tools/panel_check.py`: 9 of 9 checks pass.
+- "Use this composition" tested live: correct status text, layer token written to its
+  comment, layer selected, panel switched to tab 2. Test comp and footage removed after.
 
 Open or unverified:
-- **Docked panel (Window > Look Decomposer) shows no scroll bar** for the user. Code v16 gives
-  docked panels the custom bar, capped to the panel height, but this was not seen in After
-  Effects after a restart. ScriptUI cannot use After Effects' own scroll handle here.
+- **Docked panel (Window > Look Decomposer) shows no scroll bar** for the user. Code gives
+  docked panels the custom bar, capped to the panel height (v17 reads the real tab position
+  for the cap), but this was not seen in After Effects after a restart. ScriptUI cannot use
+  After Effects' own scroll handle here. v17's docked look (header band, big button) is not
+  yet seen either: restart After Effects and open Window > Look Decomposer to check.
 - Uploads were tested through their functions with the same file paths. The file dialogs
   were not driven.
 - Rectangle region shape and the region Saturation and Value sliders are not pixel-checked.
@@ -103,10 +112,9 @@ Never write passwords, keys, or tokens into this file or any repo file.
 - `~/Library/Application Support/AE-MCP-Bridge/`: bridge request and response files.
 
 ## Next steps
-1. Restart After Effects, open Window > Look Decomposer, and check whether a scroll bar
-   appears at the panel's right edge when the panel is shorter than its content. If it still
-   doesn't, decide between a UXP panel (After Effects UXP public beta is planned for
-   November 2026) and another layout.
-2. Decide whether to commit `test_stills/ground_truth.aep` and the Auto-Save folder.
-3. Analyzer work toward the Nov 17 milestone: glow intensity, exposure and gamma, and
+1. Restart After Effects, open Window > Look Decomposer, and check the v17 header, the
+   "Use this composition" button, and whether a scroll bar appears at the panel's right
+   edge when the panel is shorter than its content. If it still doesn't, decide between a
+   UXP panel (After Effects UXP public beta is planned for November 2026) and another layout.
+2. Analyzer work toward the Nov 17 milestone: glow intensity, exposure and gamma, and
    split-tone strength are the weakest fields in `test_stills/scores.json`.

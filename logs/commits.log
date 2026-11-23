@@ -213,3 +213,13 @@ A	test_stills/Auto-Save/ground_truth auto-save 1.aep
 A	test_stills/Auto-Save/ground_truth auto-save 2.aep
 M	test_stills/ground_truth.aep
 
+==================================================================
+Date:    2026-11-23 15:55:10
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Panel v17: UI polish, header band, and Use this composition button
+Files:
+M	AGENTS.md
+M	docs/research-log.md
+M	look_decomposer/ae_panel/LookDecomposer.jsx
+

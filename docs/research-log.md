@@ -47,3 +47,20 @@ Record findings, hypotheses, and experiment results here.
     the illustrated characters.
 - **Next step:** verify the docked panel's scroll bar after restarting After Effects; then
   the Nov 17 analyzer work (glow, exposure and gamma, split-tone strength).
+
+### 2026-11-23 — Panel UI polish and the "Use this composition" button
+- **Goal:** A cleaner look for the whole panel, and an obvious one-press way to
+  start the tool when a composition is open.
+- **Method:** Panel v17. Dark header band (title + version), tinted status box,
+  colored section headings, accent-colored primary buttons (Upload reference,
+  Upload footage, Create auto-masked region). A big "Use this composition" button
+  sits at the top of every tab: it targets the selected footage layer in the open
+  comp (otherwise the topmost), applies a loaded reference look when the layer has
+  no look yet, selects the layer, and jumps to tab 2. Docked scroll cap now reads
+  the tabs' real position instead of a fixed chrome constant.
+- **Result:** `panel_check.py` 9 of 9. Live test of the button in AE 26.5: status
+  text correct, the layer's token written to its comment, the layer selected, the
+  panel on tab 2; the test comp and footage were removed afterwards.
+- **Next step:** after an After Effects restart, check the docked panel's v17
+  look, the button, and the scroll bar. Then the overdue analyzer work (glow,
+  exposure and gamma, split-tone strength).
