@@ -277,3 +277,12 @@ D	look_decomposer/ae_panel/icons/launch.png
 M	look_decomposer/install_panel.py
 M	look_decomposer/tools/make_icons.py
 
+==================================================================
+Date:    2026-11-23 16:40:37
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Assignment README and presentation demo notes
+Files:
+M	README.md
+A	docs/demo-script.md
+
