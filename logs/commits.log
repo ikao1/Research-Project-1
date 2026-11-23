@@ -203,3 +203,13 @@ M	docs/research-log.md
 M	look_decomposer/README.md
 A	look_decomposer/tools/panel_check.py
 
+==================================================================
+Date:    2026-11-23 15:17:49
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Commit ground truth AE project and auto-save snapshots
+Files:
+A	test_stills/Auto-Save/ground_truth auto-save 1.aep
+A	test_stills/Auto-Save/ground_truth auto-save 2.aep
+M	test_stills/ground_truth.aep
+
