@@ -243,3 +243,13 @@ M	AGENTS.md
 M	docs/research-log.md
 M	look_decomposer/install_panel.py
 
+==================================================================
+Date:    2026-11-23 16:09:12
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Panel v18: remove the footage upload section from tab 1
+Files:
+M	AGENTS.md
+M	docs/research-log.md
+M	look_decomposer/ae_panel/LookDecomposer.jsx
+

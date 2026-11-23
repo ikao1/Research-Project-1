@@ -79,3 +79,13 @@ Record findings, hypotheses, and experiment results here.
   restored with the workspace) or File > Scripts > Open Look Decomposer.
 - **Next step:** none. Revisit only if the user asks for auto-open again, in
   which case the loader must detect the docked instance first.
+
+### 2026-11-23 — Upload tab simplified: the footage upload section is gone
+- **Goal:** drop the "B. Footage to grade" section from tab 1.
+- **Method:** Panel v18. Tab 1 keeps only the reference look upload and the
+  setup check; footage is imported by the user in After Effects and picked up
+  with "Use this composition". Status texts and the no-target messages were
+  reworded to match. The addFootageFiles machinery stays in the code (used by
+  the tests) but is no longer reachable from the panel.
+- **Result:** `panel_check.py` 9 of 9.
+- **Next step:** none.

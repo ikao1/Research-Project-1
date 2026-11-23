@@ -1,9 +1,8 @@
 /*  Look Decomposer - After Effects panel.
 
     Four tabs:
-      1. Upload   - A: a reference look (a still or video) is analyzed.
-                    B: footage (pictures or videos) is added to the composition and
-                       the reference look is applied to it at once.
+      1. Upload   - a reference look (a still or video) is analyzed and applied
+                    to the composition's footage through "Use this composition".
       2. Adjust   - the look on the working footage: strength and one slider per part.
       3. Grade    - Lumetri color controls on the working footage.
       4. Regions  - auto masks (subject, tones, colors) and hue/value/blend regions.
@@ -19,7 +18,7 @@
 (function (thisObj, LD_ROOT, LD_PYTHON) {
 
     var PANEL_TITLE = "Look Decomposer";
-    var PANEL_VERSION = 17;   // bump when the panel changes; older windows are not reused
+    var PANEL_VERSION = 18;   // bump when the panel changes; older windows are not reused
     var ENGINE_FILE = new File(LD_ROOT + "/ae/look_fx.jsx");
     var REPO_ROOT = new Folder(LD_ROOT).parent.fsName;
     var TEMP_DIR = new Folder(Folder.temp.fsName + "/LookDecomposer");
@@ -38,7 +37,7 @@
     var HS_VALUE = "ADBE HUE SATURATION-0006";
     var PERMISSION_HELP = "Turn on Preferences > Scripting & Expressions > " +
                           "'Allow Scripts to Write Files and Access Network'. Then press Check setup.";
-    var NO_TARGET = "Upload footage in tab 1 (step B), or select a footage layer in the timeline.";
+    var NO_TARGET = "Select a footage layer in the timeline, or press 'Use this composition'.";
     var FONT_TITLE = ScriptUI.newFont("Arial", "BOLD", 15);
     var FONT_SECTION = ScriptUI.newFont("Arial", "BOLD", 12);
     var FONT_SUB = ScriptUI.newFont("Arial", "BOLD", 11);
@@ -405,7 +404,8 @@
         if (!chosen) {
             ui.tabs.selection = ui.tabUpload;
             showCurrentTab();
-            setStatus("'" + comp.name + "' has no footage to grade yet. Upload some in tab 1 (step B).");
+            setStatus("'" + comp.name + "' has no footage to grade yet. Add footage to the " +
+                      "composition, then press 'Use this composition' again.");
             return;
         }
         var st = ensureState(chosen);
@@ -634,7 +634,7 @@
             applyReferenceTo(target);
             msg += "\nApplied to " + target.name + ". Adjust it in tab 2.";
         } else {
-            msg += "\nIt will be applied to footage you upload in step B.";
+            msg += "\nIt will be applied to the footage you pick with 'Use this composition'.";
         }
         refreshAll();
         setStatus(msg);
@@ -672,7 +672,7 @@
         refreshAll();
         var msg = "Added " + added.join(", ") + ". Working on " + added[added.length - 1] + ".";
         msg += S.reference ? "\nReference look applied: " + S.reference.name + "."
-                           : "\nNo reference look yet. Upload one in step A, or build a look with the sliders.";
+                           : "\nNo reference look yet. Upload one in tab 1, or build a look with the sliders.";
         if (skipped.length) { msg += "\nSkipped: " + skipped.join(", "); }
         ui.tabs.selection = ui.tabAdjust;
         showCurrentTab();
@@ -694,7 +694,7 @@
     function applyReferenceNow() {
         var layer = targetLayer();
         if (!layer) { setStatus(NO_TARGET); return; }
-        if (!S.reference) { setStatus("Upload a reference look in tab 1 (step A) first."); return; }
+        if (!S.reference) { setStatus("Upload a reference look in tab 1 first."); return; }
         applyReferenceTo(layer);
         refreshAll();
         setStatus("Applied " + S.reference.name + " to " + layer.name + ". Slider changes on it were reset.");
@@ -1637,36 +1637,27 @@
         }
     }
 
-    /* Tab 1: the reference look, the footage, and the setup check. */
+    /* Tab 1: the reference look, and the setup check. */
     function buildUploadTab(tab) {
         tab = scrollBodyOf(tab);
         setupTab(tab);
 
-        var refSec = sectionOf(tab, "A. Reference look (the look to copy)");
+        var refSec = sectionOf(tab, "Reference look (the look to copy)");
         helpText(refSec, "Choose a still or a video with the look you want. It is analyzed, " +
-                         "and the look is applied to your footage.", 44);
+                         "and the look is applied to the footage you choose with " +
+                         "'Use this composition'.", 52);
         var refBtn = refSec.add("button", undefined, "Upload reference look...");
         refBtn.onClick = safe(uploadReference);
         stylePrimary(refBtn, false);
         ui.refLabel = refSec.add("statictext", undefined, "Reference: none yet");
         ui.refResult = helpText(refSec, "", 90);
 
-        var footSec = sectionOf(tab, "B. Footage to grade");
-        helpText(footSec, "Choose one or more pictures or videos. Each is added to the " +
-                          "composition with the reference look applied, and the sliders " +
-                          "change it straight away.", 58);
-        var footBtn = footSec.add("button", undefined, "Upload footage...");
-        footBtn.onClick = safe(uploadFootage);
-        stylePrimary(footBtn, false);
-        ui.workLabel = footSec.add("statictext", undefined, "Working on: nothing yet");
-        var next = footSec.add("button", undefined, "Go to 2 Adjust");
-        next.onClick = safe(function () { ui.tabs.selection = ui.tabAdjust; showCurrentTab(); });
-
         var setupSec = sectionOf(tab, "Setup");
         var check = setupSec.add("button", undefined, "Check setup");
         check.onClick = safe(function () {
             var problem = setupProblem();
-            setStatus(problem ? problem : "Ready. Upload a reference look, then your footage.");
+            setStatus(problem ? problem : "Ready. Upload a reference look, then open a " +
+                       "composition and press 'Use this composition'.");
         });
     }
 
@@ -1842,8 +1833,8 @@
 
         ui.topTarget = win.add("statictext", undefined, "Working on: nothing yet");
         ui.status = win.add("edittext", undefined,
-                            "Open a composition and press 'Use this composition' to start. " +
-                            "Or upload a reference look (A), then your footage (B).",
+                            "Upload a reference look here, or open a composition and press " +
+                            "'Use this composition' to start.",
                             {multiline: true, readonly: true, scrollable: true});
         ui.status.alignment = ["fill", "top"];
         ui.status.preferredSize = [300, 60];

@@ -31,11 +31,13 @@ rebuilds its look inside After Effects as sliders the user can edit.
 ## Status (2026-11-23)
 Works, verified in After Effects 26.5 by reading rendered pixels and effect values:
 - Analyzer on the 10 test looks: mean normalized error 0.150 (`score.py`).
-- Panel v17: dark header band with title and version, a big always-visible "Use this
+- Panel v18: dark header band with title and version, a big always-visible "Use this
   composition" button (starts the tool on the open comp: targets the selected or topmost
   footage layer, applies a loaded reference when the layer has no look, selects it and
   jumps to tab 2), tinted status box, colored section headings, accent-colored primary
-  buttons (Upload reference, Upload footage, Create auto-masked region).
+  buttons. Tab 1 now only uploads the reference look; footage is added by the user in
+  After Effects and picked up with "Use this composition" (the upload-footage section was
+  removed at the user's request).
 - Upload reference and footage (the reference is applied at once), per-part sliders with
   checkboxes, Strength, Lumetri grade, regions (hue, value, saturation, opacity, blend),
   auto masks (Vision subject/people; luma and color ranges), icons with tooltips.
