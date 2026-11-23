@@ -3,7 +3,11 @@
 > Reverse-engineer a composited look from a reference image and rebuild it inside
 > After Effects as an editable stack of named layers and live sliders.
 >
-> **[Demo video: `docs/demo.mp4`](docs/demo.mp4)** (1–3 minute screen recording)
+> **[Demo video: `docs/demo.mp4`](docs/demo.mp4)** (75 s). It walks a reference
+> through analyze → rebuild → verify. The rebuilt frames in it are rendered by
+> the tool's own After Effects engine (`look_fx.jsx` flat mode); macOS screen
+> capture is blocked on this machine, so this AE render is the recording of the
+> tool's output. The panel itself is shown in class.
 
 ## What I set out to do
 

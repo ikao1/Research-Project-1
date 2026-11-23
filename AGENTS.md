@@ -49,6 +49,11 @@ Works, verified in After Effects 26.5 by reading rendered pixels and effect valu
   Look Decomposer), arrange it, then Window > Workspace > Save as New Workspace. After
   Effects cannot create workspaces from a script, so this is a manual step. The launcher
   button was tried and replaced by this at the user's request; its loaders were removed.
+- Assignment deliverables (Nov 23): README rewritten with all required sections,
+  `docs/demo.mp4` (75 s demo rendered by AE's own engine, since macOS screen capture
+  permission is blocked for Terminal/QuickTime/Chrome), `docs/demo-script.md`
+  presentation notes. AE project left with only "Demo - base plate" for the in-class
+  demo; it is not saved.
 
 Open or unverified:
 - **Docked panel (Window > Look Decomposer) shows no scroll bar** for the user. Code gives

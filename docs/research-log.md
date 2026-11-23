@@ -121,3 +121,24 @@ Record findings, hypotheses, and experiment results here.
   loader and File > Scripts > Open Look Decomposer remain.
 - **Next step:** the user saves the workspace. Note the workspace also decides
   whether the panel comes back when After Effects launches.
+
+### 2026-11-23 — Assignment deliverables: README, demo video, presentation notes
+- **Goal:** everything the Nov 23 deadline asks for: repo link, README with the
+  required sections, a 1-3 minute recording linked from the README, and a
+  walk-through.
+- **Method:** README rewritten (what I set out to do, what I made, how to run
+  it, what I learned, what doesn't work, what's next, how the project changed).
+  The demo video is 75 s, composed and rendered by After Effects itself: the
+  rebuilt frames come from the tool's own engine (`build.py --mode flat`), then
+  a comp steps reference → raw → split rebuild → full rebuild → side-by-side
+  proof → end card, exported H.264 1280x720. macOS screen capture is blocked
+  (no Screen Recording permission for Terminal, QuickTime Player, or Chrome,
+  even after grants - in-app rendering is the permission-free equivalent that
+  the Blender project used too). `docs/demo-script.md` holds the 5-7 min
+  presentation with a deep dive on one part. AE project cleaned to just the
+  demo comp; not saved.
+- **Result:** video verified frame-by-frame with pixel statistics (each
+  segment shows the right content; the reference-vs-rebuild split halves match,
+  the engine's rebuild reproduces the reference). Committed and pushed.
+- **Next step:** present Tue Nov 24; optionally swap in a true screen
+  recording if Screen Recording permission ever works.

@@ -286,3 +286,14 @@ Files:
 M	README.md
 A	docs/demo-script.md
 
+==================================================================
+Date:    2026-11-23 16:55:55
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Assignment deliverables: demo video rendered by the AE engine, README, demo notes
+Files:
+M	AGENTS.md
+M	README.md
+A	docs/demo.mp4
+M	docs/research-log.md
+
