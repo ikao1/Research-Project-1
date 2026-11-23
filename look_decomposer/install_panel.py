@@ -1,23 +1,20 @@
 #!/usr/bin/env python3
 """Install the Look Decomposer panel into After Effects.
 
-Writes small loaders into each After Effects user Scripts folder:
+Writes two small loaders into each After Effects user Scripts folder:
 
     ~/Library/Preferences/Adobe/After Effects/<version>/Scripts/ScriptUI Panels/Look Decomposer.jsx
         -> Window > Look Decomposer (a dockable panel, shown as a tab)
     ~/Library/Preferences/Adobe/After Effects/<version>/Scripts/Open Look Decomposer.jsx
         -> File > Scripts > Open Look Decomposer (opens the window)
-    .../Scripts/Startup/Look Decomposer.jsx (and the Documents mirror)
-        -> opens the window automatically when After Effects starts
 
-The loaders point at this project folder and at a Python interpreter that has
+The loader points at this project folder and at a Python interpreter that has
 Pillow installed. The panel code itself is read from the project each time
 After Effects starts, so edits to ae_panel/LookDecomposer.jsx need only a
 restart of After Effects.
 
 Open the panel from Window > Look Decomposer, or from
-File > Scripts > Open Look Decomposer, in After Effects. On launch it opens
-by itself.
+File > Scripts > Open Look Decomposer, in After Effects.
 
 Usage:
     python3 -m look_decomposer.install_panel               # install
@@ -41,9 +38,7 @@ ANALYZER = HERE / "analyzer.py"
 PLATE = HERE.parent / "test_stills" / "base_plate.png"
 LOADER_NAME = "Look Decomposer.jsx"
 MENU_LOADER_NAME = "Open Look Decomposer.jsx"
-STARTUP_NAME = "Look Decomposer.jsx"
 PREFS_ROOT = Path.home() / "Library" / "Preferences" / "Adobe" / "After Effects"
-DOCS_ROOT = Path.home() / "Documents" / "Adobe" / "After Effects"
 
 LOADER_TEMPLATE = r'''/*  Look Decomposer loader. Written by look_decomposer/install_panel.py.
     Re-run that script if the project folder moves.
@@ -65,30 +60,6 @@ LOADER_TEMPLATE = r'''/*  Look Decomposer loader. Written by look_decomposer/ins
     var run = eval(source);
     run(thisObj, LD_ROOT, LD_PYTHON);
 })(this);
-'''
-
-STARTUP_TEMPLATE = r'''/*  Look Decomposer startup loader. Written by look_decomposer/install_panel.py.
-    Runs when After Effects starts and opens the Look Decomposer window.
-*/
-(function () {
-    try {
-        var LD_ROOT = __LD_ROOT__;
-        var LD_PYTHON = __LD_PYTHON__;
-        var panelFile = new File(LD_ROOT + "/ae_panel/LookDecomposer.jsx");
-        if (!panelFile.exists) {
-            $.writeln("Look Decomposer: the panel code was not found at: " + panelFile.fsName);
-            return;
-        }
-        panelFile.encoding = "UTF-8";
-        panelFile.open("r");
-        var source = panelFile.read();
-        panelFile.close();
-        var run = eval(source);
-        run(undefined, LD_ROOT, LD_PYTHON);
-    } catch (e) {
-        $.writeln("Look Decomposer startup: " + e.toString());
-    }
-})();
 '''
 
 
@@ -114,18 +85,8 @@ def menu_loader_path(version_dir):
     return version_dir / "Scripts" / MENU_LOADER_NAME
 
 
-def startup_loader_paths(version_dir):
-    """Startup Scripts folders: After Effects runs these at launch. Both the
-    Preferences and the Documents mirror are written, so the location works
-    across After Effects versions."""
-    return [
-        version_dir / "Scripts" / "Startup" / STARTUP_NAME,
-        DOCS_ROOT / version_dir.name / "Scripts" / "Startup" / STARTUP_NAME,
-    ]
-
-
 def all_loader_paths(version_dir):
-    return [loader_path(version_dir), menu_loader_path(version_dir)] + startup_loader_paths(version_dir)
+    return [loader_path(version_dir), menu_loader_path(version_dir)]
 
 
 def has_pillow(python):
@@ -144,12 +105,6 @@ def check_project_files():
 
 def make_loader(python):
     return (LOADER_TEMPLATE
-            .replace("__LD_ROOT__", json.dumps(str(PROJECT_DIR)))
-            .replace("__LD_PYTHON__", json.dumps(str(python))))
-
-
-def make_startup_loader(python):
-    return (STARTUP_TEMPLATE
             .replace("__LD_ROOT__", json.dumps(str(PROJECT_DIR)))
             .replace("__LD_PYTHON__", json.dumps(str(python))))
 
@@ -176,23 +131,19 @@ def install(python, versions):
         return 1
 
     text = make_loader(python)
-    startup_text = make_startup_loader(python)
     for version in versions:
         for target in all_loader_paths(version):
             target.parent.mkdir(parents=True, exist_ok=True)
-            if target in startup_loader_paths(version):
-                target.write_text(startup_text, encoding="utf-8")
-            else:
-                target.write_text(text, encoding="utf-8")
+            target.write_text(text, encoding="utf-8")
             print("Installed: %s" % target)
 
     print()
     print("Next steps:")
-    print("  1. Restart After Effects. The Look Decomposer window opens by itself.")
+    print("  1. Restart After Effects.")
     print("  2. Turn on Preferences > Scripting & Expressions >")
     print("     'Allow Scripts to Write Files and Access Network'.")
-    print("  3. Also available: Window > Look Decomposer (docks as a tab),")
-    print("     and File > Scripts > Open Look Decomposer (opens the window).")
+    print("  3. Open the panel with Window > Look Decomposer (docks as a tab),")
+    print("     or File > Scripts > Open Look Decomposer (opens the window).")
     return 0
 
 
@@ -222,9 +173,6 @@ def status(python, versions):
                               ("File > Scripts", menu_loader_path(version))):
             state = "installed" if target.exists() else "not installed"
             print("AE %-8s %-14s: %s (%s)" % (version.name, label, state, target))
-        for target in startup_loader_paths(version):
-            state = "installed" if target.exists() else "not installed"
-            print("AE %-8s %-14s: %s (%s)" % (version.name, "Startup", state, target))
     return 0
 
 

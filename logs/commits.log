@@ -233,3 +233,13 @@ M	AGENTS.md
 M	docs/research-log.md
 M	look_decomposer/install_panel.py
 
+==================================================================
+Date:    2026-11-23 16:07:31
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Remove startup auto-open: panel appeared twice at launch
+Files:
+M	AGENTS.md
+M	docs/research-log.md
+M	look_decomposer/install_panel.py
+

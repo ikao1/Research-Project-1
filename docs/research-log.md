@@ -65,14 +65,17 @@ Record findings, hypotheses, and experiment results here.
   look, the button, and the scroll bar. Then the overdue analyzer work (glow,
   exposure and gamma, split-tone strength).
 
-### 2026-11-23 — Startup loader: the panel opens when After Effects launches
+### 2026-11-23 — Startup loader tried, then removed: the panel appeared twice
 - **Goal:** the Look Decomposer is there right after After Effects opens, with no
   menu digging.
-- **Method:** `install_panel.py` now also writes a startup loader into
-  `Scripts/Startup/` in both the Preferences and Documents roots (AE runs both,
-  depending on version), for AE 26.0 and 26.5. It loads the panel source and
-  opens it as a floating window; failures are logged with `$.writeln` instead of
-  an alert.
-- **Result:** install and `--status` verified; all four startup loaders present.
-  The auto-open itself needs an After Effects restart to be seen.
-- **Next step:** restart After Effects and confirm the window opens on its own.
+- **Method:** `install_panel.py` wrote a startup loader into `Scripts/Startup/`
+  in both the Preferences and Documents roots (AE runs both, depending on
+  version), for AE 26.0 and 26.5. It loaded the panel source and opened it as a
+  floating window.
+- **Result:** After Effects restores the docked panel with the workspace, and the
+  startup script opened a second floating window: the panel appeared twice. The
+  startup loaders and the feature were removed again; the empty folders it made
+  were cleaned up. The panel is opened by Window > Look Decomposer (docked,
+  restored with the workspace) or File > Scripts > Open Look Decomposer.
+- **Next step:** none. Revisit only if the user asks for auto-open again, in
+  which case the loader must detect the docked instance first.
