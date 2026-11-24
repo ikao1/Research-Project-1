@@ -211,3 +211,16 @@ Record findings, hypotheses, and experiment results here.
   reference, history and label come back, and Apply reference applies it at
   once. panel_check 9 of 9, feature test 41 of 41.
 - **Next step:** the user re-checks their real workflow (docked panel).
+
+### 2026-11-24 — Remove reference button, and a ScriptUI preview quirk
+- **Goal:** a "Remove reference" button next to "Upload reference look".
+- **Method:** Panel v24. The button clears the active reference and its saved
+  state file, keeps looks already on footage and the Recent history, and
+  blanks the preview. Discovered on the way: AE 26.5 ScriptUI's `image.image`
+  getter returns an undefined path even right after assignment, and setting
+  it to null does not clear, so the preview is cleared with a transparent
+  `blank.png` icon and the preview state is verified through the thumbnail
+  file instead of the getter.
+- **Result:** live-tested: upload, remove, re-upload - reference cleared and
+  label/summary reset; panel_check 9 of 9, feature test 41 of 41.
+- **Next step:** none.

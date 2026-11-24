@@ -23,7 +23,7 @@
 (function (thisObj, LD_ROOT, LD_PYTHON) {
 
     var PANEL_TITLE = "Look Decomposer";
-    var PANEL_VERSION = 22;   // bump when the panel changes; older windows are not reused
+    var PANEL_VERSION = 24;   // bump when the panel changes; older windows are not reused
     var ENGINE_FILE = new File(LD_ROOT + "/ae/look_fx.jsx");
     var REPO_ROOT = new Folder(LD_ROOT).parent.fsName;
     var TEMP_DIR = new Folder(Folder.temp.fsName + "/LookDecomposer");
@@ -708,9 +708,33 @@
         }
         if (ui.refImage) {
             try {
-                ui.refImage.image = (S.reference && S.reference.thumb) ? new File(S.reference.thumb) : null;
+                /* Setting image to null does not clear in AE ScriptUI; a
+                   transparent blank PNG is used instead. */
+                ui.refImage.image = (S.reference && S.reference.thumb) ?
+                    new File(S.reference.thumb) : new File(ICON_DIR + "/blank.png");
             } catch (e) { }
         }
+        if (ui.refResult) {
+            ui.refResult.text = S.reference ?
+                S.reference.text +
+                "\n\nConfidence: " + confidenceWord(S.reference.confidence) +
+                " (no original picture was given, so values are estimates)." : "";
+        }
+    }
+
+    /* Clears the reference look. Looks already on footage are kept; the
+       history stays, so a past reference can be picked again. */
+    function removeReference() {
+        if (!S.reference) {
+            setStatus("There is no reference look loaded.");
+            return;
+        }
+        var name = S.reference.name;
+        S.reference = null;
+        try { if (REF_STATE_FILE.exists) { REF_STATE_FILE.remove(); } } catch (e) { }
+        refreshAll();
+        setStatus("Removed the reference look " + name + ". Looks already on footage are kept; " +
+                  "pick one from Recent to bring it back, or build a look with the sliders.");
     }
 
     /* Writes the current reference to disk so any panel window or restart
@@ -2029,7 +2053,11 @@
         var refBtn = upRow.add("button", undefined, "Upload reference look...");
         refBtn.onClick = safe(uploadReference);
         stylePrimary(refBtn, false);
-        refBtn.preferredSize = [250, 30];
+        refBtn.preferredSize = [160, 30];
+        var removeRefBtn = upRow.add("button", undefined, "Remove reference");
+        removeRefBtn.onClick = safe(removeReference);
+        removeRefBtn.helpTip = "Clear the current reference look. Looks on footage are kept.";
+        removeRefBtn.preferredSize = [104, 30];
 
         var infoRow = refSec.add("group");
         infoRow.orientation = "row";
@@ -2347,11 +2375,6 @@
         if (ui.adjustTarget) { ui.adjustTarget.text = label; }
         if (ui.gradeTarget) { ui.gradeTarget.text = label; }
         refreshReferenceUI();
-        if (ui.refResult && S.reference) {
-            ui.refResult.text = S.reference.text +
-                "\n\nConfidence: " + confidenceWord(S.reference.confidence) +
-                " (no original picture was given, so values are estimates).";
-        }
 
         var st = layer ? loadLookState(layer) : null;
         if (ui.strength) {
@@ -2406,7 +2429,7 @@
             setReference: setReference, addFootageFiles: addFootageFiles,
             useThisComposition: useThisComposition, applyReferenceToAll: applyReferenceToAll,
             savePreset: savePreset, loadPreset: loadPreset, onHistorySelect: onHistorySelect,
-            refreshReferenceUI: refreshReferenceUI,
+            refreshReferenceUI: refreshReferenceUI, removeReference: removeReference,
             applyReferenceTo: applyReferenceTo, applyReferenceNow: applyReferenceNow, targetLayer: targetLayer,
             sourceFrameForMask: sourceFrameForMask, createAutoRegion: createAutoRegion,
             renderLook: renderLook, loadLookState: loadLookState, effectiveSection: effectiveSection,

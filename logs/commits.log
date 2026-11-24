@@ -354,3 +354,16 @@ M	AGENTS.md
 M	docs/research-log.md
 M	look_decomposer/ae_panel/LookDecomposer.jsx
 
+==================================================================
+Date:    2026-11-24 10:43:56
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Panel v24: Remove reference button in tab 1, blank preview clearing
+Files:
+M	AGENTS.md
+M	docs/research-log.md
+M	look_decomposer/ae_panel/LookDecomposer.jsx
+A	look_decomposer/ae_panel/icons/blank.png
+M	look_decomposer/tools/make_icons.py
+M	look_decomposer/tools/panel_feature_test.py
+

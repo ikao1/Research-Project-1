@@ -117,7 +117,8 @@ try {
     check("setReference", d.state.reference && d.state.reference.name === "warm_sunset",
           d.state.reference ? d.state.reference.name : "null");
     check("thumbnail file", d.state.reference && d.state.reference.thumb && new File(d.state.reference.thumb).exists);
-    check("preview image set", d.ui.refImage && d.ui.refImage.image !== null);
+    check("reference label", d.ui.refLabel && String(d.ui.refLabel.text).indexOf("warm_sunset") >= 0,
+          d.ui.refLabel.text);
     check("history entry", d.state.refHistory.length >= 1, "length=" + d.state.refHistory.length);
     check("summary text", d.ui.refResult && String(d.ui.refResult.text).length > 20);
     d.ui.refHistory.selection = 1;

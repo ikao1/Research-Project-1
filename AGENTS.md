@@ -61,6 +61,12 @@ Works, verified in After Effects 26.5 by reading rendered pixels and effect valu
   reference, and with two panel windows or after a restart the reference used to be
   missing. Apply reference itself was verified: overrides cleared, sliders reset to
   reference values, effects rebuilt.
+- Panel v24: a "Remove reference" button next to "Upload reference look" in tab 1.
+  It clears the active reference (and its saved state file); looks already on footage
+  are kept and the Recent history stays. The preview clears with a transparent
+  `blank.png` icon (setting `image.image = null` does not clear, and AE 26.5's
+  `image.image` getter returns an undefined path even right after a set, so preview
+  state is verified through the thumbnail file, not the getter).
 - AE 26.5 has crashed three times this session (twice from the Update-mask bug, once
   unexplained). After a crash it relaunches and auto-recovers an autosave, which may be
   a different project than was open; the bridge then misses responses until dialogs are

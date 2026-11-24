@@ -149,6 +149,10 @@ def check_circle(d, img):
     d.line([(32, 50), (44, 62), (66, 36)], fill=INK, width=7)
 
 
+def blank(d, img):
+    pass
+
+
 def contrast(d, img):
     d.ellipse((14, 14, 82, 82), outline=INK, width=5)
     d.pieslice((14, 14, 82, 82), 90, 270, fill=DARK)
@@ -289,7 +293,7 @@ ICONS = {
     "area": area, "edge_soft": edge_soft, "move_h": move_h, "move_v": move_v,
     "opacity": opacity, "blend": blend, "grow": grow,
     "upload": upload, "clock": clock, "disk": disk, "folder": folder,
-    "layers": layers, "check_circle": check_circle,
+    "layers": layers, "check_circle": check_circle, "blank": blank,
 }
 
 
