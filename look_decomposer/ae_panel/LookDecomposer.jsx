@@ -1962,38 +1962,47 @@
         var refSec = sectionOf(tab, "Reference look (the look to copy)");
         helpText(refSec, "Choose a still or a video with the look you want. It is analyzed, " +
                          "and the look is applied to the footage you choose with " +
-                         "'Use this composition'.", 44);
+                         "'Use this composition'.", 40);
         var refBtn = refSec.add("button", undefined, "Upload reference look...");
         refBtn.onClick = safe(uploadReference);
         stylePrimary(refBtn, false);
-        ui.refLabel = refSec.add("statictext", undefined, "Reference: none yet");
+
+        var infoRow = refSec.add("group");
+        infoRow.orientation = "row";
+        infoRow.alignChildren = ["left", "center"];
+        infoRow.alignment = ["fill", "top"];
+        ui.refLabel = infoRow.add("statictext", undefined, "Reference: none yet");
+        ui.refLabel.graphics.font = FONT_SUB;
+        ui.refLabel.alignment = ["fill", "center"];
+        var histLab = infoRow.add("statictext", undefined, "Recent:");
+        ui.refHistory = infoRow.add("dropdownlist", undefined, ["none"]);
+        ui.refHistory.preferredSize = [120, 24];
+        ui.refHistory.selection = 0;
+        ui.refHistory.helpTip = "Analyzed references from this session. Pick one to re-apply it.";
+        ui.refHistory.onChange = safe(onHistorySelect);
+
         ui.refImage = refSec.add("image");
         ui.refImage.alignment = ["fill", "top"];
         ui.refImage.preferredSize = [240, 135];
         ui.refImage.helpTip = "A preview of the analyzed reference.";
-        var histRow = refSec.add("group");
-        histRow.orientation = "row";
-        histRow.alignChildren = ["left", "center"];
-        histRow.alignment = ["fill", "top"];
-        histRow.add("statictext", undefined, "Recent:");
-        ui.refHistory = histRow.add("dropdownlist", undefined, ["none"]);
-        ui.refHistory.preferredSize = [200, 24];
-        ui.refHistory.selection = 0;
-        ui.refHistory.helpTip = "Analyzed references from this session. Pick one to re-apply it.";
-        ui.refHistory.onChange = safe(onHistorySelect);
+
         ui.refResult = helpText(refSec, "", 84);
+
         var presetRow = refSec.add("group");
         presetRow.orientation = "row";
         presetRow.alignment = ["fill", "top"];
         var saveB = presetRow.add("button", undefined, "Save preset...");
         saveB.onClick = safe(savePreset);
         saveB.helpTip = "Write the current reference look to a JSON file.";
+        saveB.preferredSize = [92, 24];
         var loadB = presetRow.add("button", undefined, "Load preset...");
         loadB.onClick = safe(loadPreset);
         loadB.helpTip = "Use a saved look preset JSON as the reference.";
+        loadB.preferredSize = [92, 24];
         var allB = presetRow.add("button", undefined, "Apply to all");
         allB.onClick = safe(applyReferenceToAll);
         allB.helpTip = "Apply the reference to every footage layer in the open composition.";
+        allB.preferredSize = [92, 24];
 
         var setupSec = sectionOf(tab, "Setup");
         var check = setupSec.add("button", undefined, "Check setup");
@@ -2054,7 +2063,7 @@
         var listSec = sectionOf(tab, "Regions in this composition");
         ui.regionList = listSec.add("listbox", undefined, []);
         ui.regionList.alignment = ["fill", "top"];
-        ui.regionList.preferredSize = [260, 70];
+        ui.regionList.preferredSize = [260, 84];
         ui.regionList.onChange = safe(onRegionSelect);
         ui.regionList.helpTip = "Pick a region to select its layer in the timeline.";
         var buttons = listSec.add("group");
@@ -2062,31 +2071,40 @@
         buttons.alignment = ["fill", "top"];
         var addB = buttons.add("button", undefined, "Add region");
         addB.onClick = safe(addRegion);
+        addB.preferredSize = [96, 24];
         var remB = buttons.add("button", undefined, "Remove region");
         remB.onClick = safe(removeRegion);
+        remB.preferredSize = [96, 24];
         var refreshB = buttons.add("button", undefined, "Refresh");
         refreshB.onClick = safe(refreshRegions);
+        refreshB.preferredSize = [64, 24];
         var buttons2 = listSec.add("group");
         buttons2.orientation = "row";
         buttons2.alignment = ["fill", "top"];
         var dupB = buttons2.add("button", undefined, "Duplicate");
         dupB.onClick = safe(duplicateRegion);
         dupB.helpTip = "Copy the selected region, its settings, and its mask.";
+        dupB.preferredSize = [88, 24];
         var renB = buttons2.add("button", undefined, "Rename...");
         renB.onClick = safe(renameRegion);
+        renB.preferredSize = [88, 24];
         var togB = buttons2.add("button", undefined, "On / off");
         togB.onClick = safe(toggleRegion);
         togB.helpTip = "Turn the selected region on or off.";
+        togB.preferredSize = [88, 24];
         var buttons3 = listSec.add("group");
         buttons3.orientation = "row";
         buttons3.alignment = ["fill", "top"];
         var upB = buttons3.add("button", undefined, "Move up");
         upB.onClick = safe(function () { moveRegion(-1); });
+        upB.preferredSize = [88, 24];
         var downB = buttons3.add("button", undefined, "Move down");
         downB.onClick = safe(function () { moveRegion(1); });
+        downB.preferredSize = [88, 24];
         var maskB = buttons3.add("button", undefined, "Update mask");
         maskB.onClick = safe(updateAutoMask);
         maskB.helpTip = "Re-run the auto mask of the selected region with its stored settings.";
+        maskB.preferredSize = [88, 24];
 
         var areaSec = sectionOf(tab, "1. Choose the area");
 
@@ -2098,6 +2116,8 @@
         var modeNames = [];
         for (var am = 0; am < AUTO_MODES.length; am++) { modeNames.push(AUTO_MODES[am][0]); }
         ui.autoMode = modeRow.add("dropdownlist", undefined, modeNames);
+        ui.autoMode.alignment = ["fill", "center"];
+        ui.autoMode.preferredSize = [170, 24];
         ui.autoMode.selection = 0;
         ui.autoGrow = makeSlider(autoPanel, "Grow / shrink", -20, 20, 0, " px");
         ui.autoFeather = makeSlider(autoPanel, "Edge softness", 0, 20, 2, " px");
@@ -2117,6 +2137,8 @@
         shapeRow.alignment = ["fill", "top"];
         shapeRow.add("statictext", undefined, "Shape:");
         ui.regShape = shapeRow.add("dropdownlist", undefined, ["Ellipse", "Rectangle"]);
+        ui.regShape.alignment = ["fill", "center"];
+        ui.regShape.preferredSize = [110, 24];
         ui.regShape.selection = 0;
         ui.regShape.onChange = safe(onRegionChange);
         ui.regSize = makeSlider(manualPanel, "Area size", 5, 100, 50, "%", onRegionChange);
@@ -2132,6 +2154,8 @@
         var names = [];
         for (var c = 0; c < CHANNELS.length; c++) { names.push(CHANNELS[c][0]); }
         ui.regColor = colorRow.add("dropdownlist", undefined, names);
+        ui.regColor.alignment = ["fill", "center"];
+        ui.regColor.preferredSize = [150, 24];
         ui.regColor.selection = 0;
         ui.regColor.onChange = safe(onRegionChange);
         ui.regHue = makeSlider(changeSec, "Hue shift", -180, 180, 0, " deg", onRegionChange);
@@ -2145,6 +2169,8 @@
         var blendNames = [];
         for (var bn = 0; bn < BLEND_MODES.length; bn++) { blendNames.push(BLEND_MODES[bn][0]); }
         ui.regBlend = blendRow.add("dropdownlist", undefined, blendNames);
+        ui.regBlend.alignment = ["fill", "center"];
+        ui.regBlend.preferredSize = [150, 24];
         ui.regBlend.selection = 0;
         ui.regBlend.onChange = safe(onRegionChange);
 

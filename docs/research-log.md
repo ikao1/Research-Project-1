@@ -166,3 +166,13 @@ Record findings, hypotheses, and experiment results here.
   preset file dialogs) were not driven by the agent.
 - **Next step:** restart After Effects and check the docked v19 panel; drive
   the dialog buttons once by hand.
+
+### 2026-11-24 — Tabs 1 and 4 tidied up
+- **Goal:** make Upload and Regions nicer to look at.
+- **Method:** Tab 1: the reference name (bold) and the Recent dropdown share
+  one row, the preview image sits under them, and the three preset buttons
+  have equal widths. Tab 4: taller region list, all management buttons sized
+  evenly in three tidy rows, and consistent full-width dropdowns for Select,
+  Shape, Colors and Blend.
+- **Result:** `panel_check.py` 9 of 9.
+- **Next step:** visual check in the docked panel after a restart.

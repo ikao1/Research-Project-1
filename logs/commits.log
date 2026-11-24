@@ -308,3 +308,12 @@ M	docs/research-log.md
 M	look_decomposer/ae_panel/LookDecomposer.jsx
 A	look_decomposer/thumbnail.py
 
+==================================================================
+Date:    2026-11-24 02:19:18
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Tidy tabs 1 and 4: even button widths, shared label rows, fuller dropdowns
+Files:
+M	docs/research-log.md
+M	look_decomposer/ae_panel/LookDecomposer.jsx
+
