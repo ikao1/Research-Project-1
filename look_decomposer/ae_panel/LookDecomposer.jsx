@@ -23,7 +23,7 @@
 (function (thisObj, LD_ROOT, LD_PYTHON) {
 
     var PANEL_TITLE = "Look Decomposer";
-    var PANEL_VERSION = 19;   // bump when the panel changes; older windows are not reused
+    var PANEL_VERSION = 20;   // bump when the panel changes; older windows are not reused
     var ENGINE_FILE = new File(LD_ROOT + "/ae/look_fx.jsx");
     var REPO_ROOT = new Folder(LD_ROOT).parent.fsName;
     var TEMP_DIR = new Folder(Folder.temp.fsName + "/LookDecomposer");
@@ -2233,10 +2233,10 @@
 
         ui.tabs = win.add("tabbedpanel");
         ui.tabs.alignment = ["fill", "fill"];
-        ui.tabUpload = ui.tabs.add("tab", undefined, "1 Upload");
-        ui.tabAdjust = ui.tabs.add("tab", undefined, "2 Adjust");
-        ui.tabGrade = ui.tabs.add("tab", undefined, "3 Grade");
-        ui.tabRegions = ui.tabs.add("tab", undefined, "4 Regions");
+        ui.tabUpload = ui.tabs.add("tab", undefined, "1. Upload");
+        ui.tabAdjust = ui.tabs.add("tab", undefined, "2. Adjust");
+        ui.tabGrade = ui.tabs.add("tab", undefined, "3. Grade");
+        ui.tabRegions = ui.tabs.add("tab", undefined, "4. Regions");
         /* A floating window is sized when it is built, from its contents' preferred
            widths. Capping the width here keeps the window at 340 pixels wide. */
         if (!(win instanceof Panel)) {

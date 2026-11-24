@@ -317,3 +317,12 @@ Files:
 M	docs/research-log.md
 M	look_decomposer/ae_panel/LookDecomposer.jsx
 
+==================================================================
+Date:    2026-11-24 02:22:54
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Panel v20: tab titles 1. Upload, 2. Adjust, 3. Grade, 4. Regions
+Files:
+M	look_decomposer/ae_panel/LookDecomposer.jsx
+M	look_decomposer/tools/panel_check.py
+

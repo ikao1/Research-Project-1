@@ -74,9 +74,9 @@ for (var s = 0; s < sliderRows.length; s++) {
 }
 lines.push("rows_without_icon=" + noIcon);
 
-var tabObjs = {"1 Upload": d.ui.tabUpload, "2 Adjust": d.ui.tabAdjust,
-               "3 Grade": d.ui.tabGrade, "4 Regions": d.ui.tabRegions};
-var names = ["1 Upload", "2 Adjust", "3 Grade", "4 Regions"];
+var tabObjs = {"1. Upload": d.ui.tabUpload, "2. Adjust": d.ui.tabAdjust,
+               "3. Grade": d.ui.tabGrade, "4. Regions": d.ui.tabRegions};
+var names = ["1. Upload", "2. Adjust", "3. Grade", "4. Regions"];
 for (var n = 0; n < names.length; n++) {
     var name = names[n];
     var view = null;
@@ -163,7 +163,7 @@ def check(values, scroll, expected_version):
     add("every slider row has an icon", values.get("rows_without_icon") == "0",
         "rows without icon: %s" % values.get("rows_without_icon", "?"))
 
-    for name in ["1 Upload", "2 Adjust", "3 Grade", "4 Regions"]:
+    for name in ["1. Upload", "2. Adjust", "3. Grade", "4. Regions"]:
         text = scroll.get(name, "missing")
         m = re.match(r"range:(\d+) steps:\d+ outside:(\d+) blank:(\d+) unreached:(\d+)", text)
         if not m:
