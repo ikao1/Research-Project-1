@@ -367,3 +367,11 @@ A	look_decomposer/ae_panel/icons/blank.png
 M	look_decomposer/tools/make_icons.py
 M	look_decomposer/tools/panel_feature_test.py
 
+==================================================================
+Date:    2026-11-24 11:51:04
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Save the ground truth AE project state after tonight's crash recoveries
+Files:
+M	test_stills/ground_truth.aep
+
