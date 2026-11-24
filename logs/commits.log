@@ -344,3 +344,13 @@ A	look_decomposer/ae_panel/icons/upload.png
 M	look_decomposer/tools/make_icons.py
 A	look_decomposer/tools/panel_feature_test.py
 
+==================================================================
+Date:    2026-11-24 10:05:07
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Panel v22: persist the reference look so Apply reference works across windows and restarts
+Files:
+M	AGENTS.md
+M	docs/research-log.md
+M	look_decomposer/ae_panel/LookDecomposer.jsx
+

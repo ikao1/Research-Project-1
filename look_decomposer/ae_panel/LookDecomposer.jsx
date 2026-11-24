@@ -23,7 +23,7 @@
 (function (thisObj, LD_ROOT, LD_PYTHON) {
 
     var PANEL_TITLE = "Look Decomposer";
-    var PANEL_VERSION = 21;   // bump when the panel changes; older windows are not reused
+    var PANEL_VERSION = 22;   // bump when the panel changes; older windows are not reused
     var ENGINE_FILE = new File(LD_ROOT + "/ae/look_fx.jsx");
     var REPO_ROOT = new Folder(LD_ROOT).parent.fsName;
     var TEMP_DIR = new Folder(Folder.temp.fsName + "/LookDecomposer");
@@ -159,6 +159,9 @@
     /* Hue (degrees) for each Colors choice, used by the color range mask. */
     var HUE_FOR_CHANNEL = {2: 0, 3: 60, 4: 120, 5: 180, 6: 240, 7: 300};
     var MATTE_DIR = new Folder(Folder.userData.fsName + "/LookDecomposer/Mattes");
+    /* The last reference look, kept on disk so it survives window closes and
+       After Effects restarts. */
+    var REF_STATE_FILE = new File(Folder.userData.fsName + "/LookDecomposer/reference.json");
 
     /* Session state. Layers are never held as objects here: After Effects throws an
        error that try/catch cannot catch when a removed layer is touched. Instead the
@@ -633,6 +636,7 @@
         };
         S.reference = ref;
         addHistory(ref);
+        saveReferenceState();
         var target = targetLayer();
         var msg = "Reference ready: " + a.name + " (" + ref.summary + ").";
         if (target) {
@@ -685,6 +689,7 @@
             name: h.name, look: h.look, confidence: h.confidence,
             summary: h.summary, text: h.text, thumb: h.thumb
         };
+        saveReferenceState();
         var target = targetLayer();
         var msg = "Reference: " + h.name + " (" + h.summary + ").";
         if (target) {
@@ -706,6 +711,47 @@
                 ui.refImage.image = (S.reference && S.reference.thumb) ? new File(S.reference.thumb) : null;
             } catch (e) { }
         }
+    }
+
+    /* Writes the current reference to disk so any panel window or restart
+       finds it again. */
+    function saveReferenceState() {
+        if (!S.reference) { return; }
+        try {
+            var dir = new Folder(Folder.userData.fsName + "/LookDecomposer");
+            if (!dir.exists) { dir.create(); }
+            var doc = {
+                name: S.reference.name,
+                look: S.reference.look,
+                confidence: S.reference.confidence,
+                summary: S.reference.summary,
+                text: S.reference.text,
+                thumb: S.reference.thumb
+            };
+            var f = new File(REF_STATE_FILE.fsName);
+            f.encoding = "UTF-8";
+            f.open("w");
+            f.write(jsonText(doc));
+            f.close();
+        } catch (e) { }
+    }
+
+    /* Brings the last used reference back when this panel instance has none.
+       It is not applied to anything until you press Apply or Use this
+       composition. */
+    function restoreReferenceState() {
+        if (S.reference) { return; }
+        try {
+            if (!REF_STATE_FILE.exists) { return; }
+            var doc = parseJSON(readText(REF_STATE_FILE.fsName));
+            if (!doc || !doc.look) { return; }
+            var thumb = (doc.thumb && new File(doc.thumb).exists) ? doc.thumb : null;
+            S.reference = {
+                name: doc.name, look: doc.look, confidence: doc.confidence,
+                summary: doc.summary, text: doc.text, thumb: thumb
+            };
+            addHistory(S.reference);
+        } catch (e) { }
     }
 
     /* Writes the current reference look to a JSON file (a look preset). */
@@ -750,6 +796,7 @@
         };
         S.reference = ref;
         addHistory(ref);
+        saveReferenceState();
         var target = targetLayer();
         var msg = "Loaded preset: " + ref.name + ".";
         if (target) {
@@ -2346,6 +2393,7 @@
     }
 
     var panel = buildUI(thisObj);
+    restoreReferenceState();
     refreshAll();
     refreshRegions();
 
@@ -2359,7 +2407,7 @@
             useThisComposition: useThisComposition, applyReferenceToAll: applyReferenceToAll,
             savePreset: savePreset, loadPreset: loadPreset, onHistorySelect: onHistorySelect,
             refreshReferenceUI: refreshReferenceUI,
-            applyReferenceTo: applyReferenceTo, targetLayer: targetLayer,
+            applyReferenceTo: applyReferenceTo, applyReferenceNow: applyReferenceNow, targetLayer: targetLayer,
             sourceFrameForMask: sourceFrameForMask, createAutoRegion: createAutoRegion,
             renderLook: renderLook, loadLookState: loadLookState, effectiveSection: effectiveSection,
             onPartChange: onPartChange, onPartToggle: onPartToggle, onStrength: onStrength,

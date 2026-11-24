@@ -195,3 +195,19 @@ Record findings, hypotheses, and experiment results here.
   test fix needed was the BlendingMode comparison (enum, not string).
 - **Next step:** none pending on the panel; drive the dialog buttons
   (Rename, Save/Load preset) once by hand.
+
+### 2026-11-24 — Apply reference fixed: the reference survives restarts
+- **Goal:** "Apply reference" in tab 2 seemed to do nothing.
+- **Method:** The button itself was verified working (overrides cleared,
+  sliders reset to reference values, effects rebuilt - exported to fns and
+  tested live). The real gap: the reference was per-window session state, so a
+  second panel window, an After Effects restart, or a crash recovery lost it
+  and the button had nothing to apply. Panel v22 now persists the current
+  reference (name, look, confidence, summary, thumbnail path) to
+  ~/Library/Application Support/LookDecomposer/reference.json on every set
+  (upload, history pick, preset load), and every new panel instance restores
+  it into the reference and the history.
+- **Result:** live test: upload, close the window, open a fresh panel - the
+  reference, history and label come back, and Apply reference applies it at
+  once. panel_check 9 of 9, feature test 41 of 41.
+- **Next step:** the user re-checks their real workflow (docked panel).

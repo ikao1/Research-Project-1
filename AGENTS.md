@@ -53,6 +53,14 @@ Works, verified in After Effects 26.5 by reading rendered pixels and effect valu
   - Not driven by the agent (dialogs): Rename region, Save/Load preset file dialogs.
     Tested live instead: setReference/thumbnail/history/apply-to-all, add/select/toggle/
     duplicate/move/update-mask. All test comps, footage, mattes and solids were removed.
+- Panel v22: the current reference look is persisted to
+  `~/Library/Application Support/LookDecomposer/reference.json` whenever it is set
+  (upload, history pick, preset load), and any new panel window or After Effects
+  restart restores it (name, look, summary, thumbnail, history). This fixes "Apply
+  reference does nothing": the button only works when the panel instance has a
+  reference, and with two panel windows or after a restart the reference used to be
+  missing. Apply reference itself was verified: overrides cleared, sliders reset to
+  reference values, effects rebuilt.
 - AE 26.5 has crashed three times this session (twice from the Update-mask bug, once
   unexplained). After a crash it relaunches and auto-recovers an autosave, which may be
   a different project than was open; the bridge then misses responses until dialogs are
