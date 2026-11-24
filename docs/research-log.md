@@ -142,3 +142,27 @@ Record findings, hypotheses, and experiment results here.
   the engine's rebuild reproduces the reference). Committed and pushed.
 - **Next step:** present Tue Nov 24; optionally swap in a true screen
   recording if Screen Recording permission ever works.
+
+### 2026-11-24 — Panel v19: professional pass on Upload and Regions
+- **Goal:** what a professional would need from the reference workflow and the
+  region tooling.
+- **Method:** Tab 1 gained a reference preview thumbnail (PIL thumbnail
+  module), a recent-references dropdown that re-applies earlier analyses
+  without re-analyzing, Save/Load look preset JSON files, and "Apply to all"
+  for every footage layer in the comp. Tab 4 gained timeline selection sync
+  (picking a region selects its layer so the mask shows), [on]/[off] list
+  prefixes with an On/off button, Duplicate (with its own matte copy for auto
+  regions), Rename via a small dialog, Move up/down through the layer stack,
+  and Update mask, which re-runs the stored auto mask. Scroll margin went 8 ->
+  14 px so the panel check's 10 px sampling reaches every row.
+- **Result:** `panel_check.py` 9 of 9. Live-tested in AE 26.5:
+  thumbnail/history/apply-to-all, and add/select/toggle/duplicate/move/
+  update-mask (all passed after fixes; test items removed afterwards). Two
+  real bugs found and fixed: Move up was a no-op (moveAfter instead of
+  moveBefore), and Update mask removed its own new matte and then worked on
+  the removed layer - which crashed After Effects twice. AE 26.5 also crashed
+  once without an explained cause and auto-recovers autosaves, so the open
+  project can change without warning. Dialog-driven paths (Rename, Save/Load
+  preset file dialogs) were not driven by the agent.
+- **Next step:** restart After Effects and check the docked v19 panel; drive
+  the dialog buttons once by hand.

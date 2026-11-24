@@ -3,9 +3,14 @@
     Four tabs:
       1. Upload   - a reference look (a still or video) is analyzed and applied
                     to the composition's footage through "Use this composition".
+                    A preview thumbnail, recent references, save/load look
+                    presets, and "Apply to all" footage layers.
       2. Adjust   - the look on the working footage: strength and one slider per part.
       3. Grade    - Lumetri color controls on the working footage.
       4. Regions  - auto masks (subject, tones, colors) and hue/value/blend regions.
+                    Select, toggle, duplicate, rename, reorder, and re-mask
+                    regions; the selected region's layer is selected in the
+                    timeline so its mask shows in the comp.
 
     The analysis runs in Python (look_decomposer/analyzer.py). Effects come from
     ae/look_fx.jsx. Each footage layer keeps its own look and grade in its layer
@@ -18,7 +23,7 @@
 (function (thisObj, LD_ROOT, LD_PYTHON) {
 
     var PANEL_TITLE = "Look Decomposer";
-    var PANEL_VERSION = 18;   // bump when the panel changes; older windows are not reused
+    var PANEL_VERSION = 19;   // bump when the panel changes; older windows are not reused
     var ENGINE_FILE = new File(LD_ROOT + "/ae/look_fx.jsx");
     var REPO_ROOT = new Folder(LD_ROOT).parent.fsName;
     var TEMP_DIR = new Folder(Folder.temp.fsName + "/LookDecomposer");
@@ -163,6 +168,7 @@
        regionTokens: IDs of the regions listed in tab 4, in list order */
     var S = {
         reference: null,
+        refHistory: [],
         workToken: null,
         regionTokens: [],
         loadingRegion: false
@@ -539,7 +545,7 @@
             throw new Error("The look could not be analyzed. " + (r.error || ("exit code " + r.code)));
         }
         var analysis = parseJSON(readText(out));
-        return {name: name, look: analysis.look || {}, confidence: Number(analysis.overall_confidence)};
+        return {name: name, look: analysis.look || {}, confidence: Number(analysis.overall_confidence), image: imagePath};
     }
 
     function summarize(look) {
@@ -617,19 +623,18 @@
     /* Analyzes a reference and applies it to the working footage, if there is any. */
     function setReference(file) {
         var a = analyzeFile(file);
-        S.reference = {
+        var ref = {
             name: a.name,
             look: a.look,
             confidence: a.confidence,
             summary: summarize(a.look),
-            text: describeParts(a.look)
+            text: describeParts(a.look),
+            thumb: makeThumb(a.image)
         };
-        ui.refLabel.text = "Reference: " + a.name;
-        ui.refResult.text = S.reference.text +
-            "\n\nConfidence: " + confidenceWord(a.confidence) +
-            " (no original picture was given, so values are estimates).";
+        S.reference = ref;
+        addHistory(ref);
         var target = targetLayer();
-        var msg = "Reference ready: " + a.name + " (" + S.reference.summary + ").";
+        var msg = "Reference ready: " + a.name + " (" + ref.summary + ").";
         if (target) {
             applyReferenceTo(target);
             msg += "\nApplied to " + target.name + ". Adjust it in tab 2.";
@@ -637,7 +642,146 @@
             msg += "\nIt will be applied to the footage you pick with 'Use this composition'.";
         }
         refreshAll();
+        refreshReferenceUI();
         setStatus(msg);
+    }
+
+    /* A small PNG of the analyzed reference for the tab 1 preview. */
+    function makeThumb(imagePath) {
+        try {
+            var out = tempPath("ref_thumb", ".png");
+            var r = runPython("look_decomposer.thumbnail", shq(imagePath) + " " + shq(out));
+            if (r.ok && new File(out).exists) { return out; }
+        } catch (e) { }
+        return null;
+    }
+
+    /* Keeps the last few analyzed references, newest first, for re-application
+       without re-analyzing. */
+    function addHistory(ref) {
+        var kept = [];
+        for (var i = 0; i < S.refHistory.length; i++) {
+            if (S.refHistory[i].name !== ref.name) { kept.push(S.refHistory[i]); }
+        }
+        kept.unshift(ref);
+        S.refHistory = kept.slice(0, 6);
+        rebuildHistoryUI();
+    }
+
+    function rebuildHistoryUI() {
+        if (!ui.refHistory) { return; }
+        var names = ["none"];
+        for (var i = 0; i < S.refHistory.length; i++) { names.push(S.refHistory[i].name); }
+        ui.refHistory.removeAll();
+        for (var n = 0; n < names.length; n++) { ui.refHistory.add("item", names[n]); }
+        ui.refHistory.selection = 0;
+    }
+
+    function onHistorySelect() {
+        var idx = ui.refHistory.selection ? ui.refHistory.selection.index : -1;
+        if (idx <= 0 || !S.refHistory[idx - 1]) { return; }
+        var h = S.refHistory[idx - 1];
+        S.reference = {
+            name: h.name, look: h.look, confidence: h.confidence,
+            summary: h.summary, text: h.text, thumb: h.thumb
+        };
+        var target = targetLayer();
+        var msg = "Reference: " + h.name + " (" + h.summary + ").";
+        if (target) {
+            applyReferenceTo(target);
+            msg += " Applied to " + target.name + ".";
+        }
+        refreshAll();
+        refreshReferenceUI();
+        setStatus(msg);
+    }
+
+    /* Updates the label, thumbnail and summary for the current reference. */
+    function refreshReferenceUI() {
+        if (ui.refLabel) {
+            ui.refLabel.text = S.reference ? "Reference: " + S.reference.name : "Reference: none yet";
+        }
+        if (ui.refImage) {
+            try {
+                ui.refImage.image = (S.reference && S.reference.thumb) ? new File(S.reference.thumb) : null;
+            } catch (e) { }
+        }
+    }
+
+    /* Writes the current reference look to a JSON file (a look preset). */
+    function savePreset() {
+        if (!S.reference) { setStatus("Upload a reference look first."); return; }
+        var defName = S.reference.name.replace(/[^A-Za-z0-9_-]/g, "_") + ".look.json";
+        var f = File.saveDialog("Save look preset", "JSON file:*.json", defName);
+        if (!f) { return; }
+        var doc = {
+            name: S.reference.name,
+            look: S.reference.look,
+            confidence: S.reference.confidence,
+            source: "Look Decomposer preset"
+        };
+        var wf = new File(f.fsName);
+        wf.encoding = "UTF-8";
+        wf.open("w");
+        wf.write(jsonText(doc));
+        wf.close();
+        setStatus("Saved preset: " + f.fsName);
+    }
+
+    /* Loads a look preset JSON and makes it the current reference. */
+    function loadPreset() {
+        var f = File.openDialog("Load look preset", "JSON file:*.json");
+        if (!f) { return; }
+        var doc;
+        try {
+            doc = parseJSON(readText(f.fsName));
+        } catch (e) {
+            setStatus("That file is not a look preset.");
+            return;
+        }
+        if (!doc || !doc.look) { setStatus("That file has no look to load."); return; }
+        var ref = {
+            name: doc.name || stem(f.fsName),
+            look: doc.look,
+            confidence: Number(doc.confidence) || 0,
+            summary: summarize(doc.look),
+            text: describeParts(doc.look),
+            thumb: null
+        };
+        S.reference = ref;
+        addHistory(ref);
+        var target = targetLayer();
+        var msg = "Loaded preset: " + ref.name + ".";
+        if (target) {
+            applyReferenceTo(target);
+            msg += " Applied to " + target.name + ".";
+        }
+        refreshAll();
+        refreshReferenceUI();
+        setStatus(msg);
+    }
+
+    /* Applies the current reference to every footage layer in the open comp. */
+    function applyReferenceToAll() {
+        var comp = activeComp();
+        if (!comp) { setStatus("Open a composition first."); return; }
+        if (!S.reference) { setStatus("Upload or load a reference look first."); return; }
+        var n = 0;
+        app.beginUndoGroup("Look Decomposer: apply reference to all");
+        try {
+            for (var i = 1; i <= comp.numLayers; i++) {
+                var ly = comp.layer(i);
+                if (isFootageLayer(ly)) {
+                    applyReferenceTo(ly);
+                    n++;
+                }
+            }
+        } finally {
+            app.endUndoGroup();
+        }
+        refreshAll();
+        setStatus("Applied " + S.reference.name + " to " + n + " footage layer" +
+                  (n === 1 ? "" : "s") + " in " + comp.name + ".");
     }
 
     /* ------------------------------------------------- footage (tab 1B) */
@@ -1090,7 +1234,7 @@
             var s = regionSettingsOf(ly);
             if (s) {
                 S.regionTokens.push(regionTokenOf(ly, s));
-                ui.regionList.add("item", regionTitle(ly.name, s));
+                ui.regionList.add("item", (ly.enabled ? "[on]  " : "[off] ") + regionTitle(ly.name, s));
             }
         }
     }
@@ -1121,6 +1265,10 @@
         if (!layer) { refreshRegions(); return; }
         var s = regionSettingsOf(layer);
         if (!s) { refreshRegions(); return; }
+        var comp = layer.containingComp;
+        if (comp) {
+            try { comp.selectedLayers = [layer]; } catch (e) { }
+        }
         S.loadingRegion = true;
         loadRegionControls(s);
         S.loadingRegion = false;
@@ -1204,6 +1352,175 @@
         }
         refreshRegions();
         setStatus("Removed " + name + ".");
+    }
+
+    /* Turns the selected region on or off (its layer's eye switch). */
+    function toggleRegion() {
+        var layer = selectedRegionLayer();
+        if (!layer) { setStatus("Select a region in the list first."); return; }
+        var s = regionSettingsOf(layer);
+        app.beginUndoGroup("Look Decomposer: toggle region");
+        try {
+            layer.enabled = !layer.enabled;
+        } finally {
+            app.endUndoGroup();
+        }
+        refreshRegions();
+        if (s) { selectRegionByToken(regionTokenOf(layer, s)); }
+        setStatus((layer.enabled ? "Turned on " : "Turned off ") + layer.name + ".");
+    }
+
+    /* A copy of the selected region, with its own matte when it has an auto mask. */
+    function duplicateRegion() {
+        var layer = selectedRegionLayer();
+        if (!layer) { setStatus("Select a region in the list first."); return; }
+        var s = regionSettingsOf(layer);
+        var comp = layer.containingComp;
+        var s2 = {};
+        for (var k in s) {
+            if (s.hasOwnProperty(k)) { s2[k] = s[k]; }
+        }
+        s2.id = makeToken();
+        var base = layer.name;
+        if (base.indexOf(REGION_PREFIX) === 0) { base = base.substring(REGION_PREFIX.length); }
+        var nly = null;
+        app.beginUndoGroup("Look Decomposer: duplicate region");
+        try {
+            nly = comp.layers.addSolid([1, 1, 1], REGION_PREFIX + "copy of " + base,
+                                       comp.width, comp.height, comp.pixelAspect, comp.duration);
+            nly.adjustmentLayer = true;
+            if (s.auto && s.auto.matte) {
+                var orig = findLayerByName(comp, s.auto.matte);
+                if (orig) {
+                    var newItem = app.project.importFile(new ImportOptions(orig.source.file));
+                    var mly = comp.layers.add(newItem);
+                    var newName = s.auto.matte + " copy";
+                    mly.name = newName;
+                    mly.position.setValue(orig.position.value);
+                    mly.scale.setValue(orig.scale.value);
+                    mly.anchorPoint.setValue(orig.anchorPoint.value);
+                    mly.rotation.setValue(orig.rotation.value);
+                    s2.auto = {mode: s.auto.mode, grow: s.auto.grow, feather: s.auto.feather,
+                               invert: s.auto.invert, matte: newName};
+                    nly.setTrackMatte(mly, TrackMatteType.LUMA);
+                }
+            }
+            saveRegion(nly, s2);
+            renderRegion(nly, s2);
+        } finally {
+            app.endUndoGroup();
+        }
+        refreshRegions();
+        selectRegionByToken(s2.id);
+        setStatus("Duplicated as " + nly.name + ".");
+    }
+
+    /* Renames the selected region with a small dialog. */
+    function renameRegion() {
+        var layer = selectedRegionLayer();
+        if (!layer) { setStatus("Select a region in the list first."); return; }
+        var base = layer.name;
+        if (base.indexOf(REGION_PREFIX) === 0) { base = base.substring(REGION_PREFIX.length); }
+        var dlg = new Window("dialog", "Rename region");
+        dlg.orientation = "column";
+        dlg.alignChildren = ["fill", "top"];
+        dlg.margins = 10;
+        dlg.spacing = 8;
+        dlg.add("statictext", undefined, "New name for '" + layer.name + "':");
+        var edit = dlg.add("edittext", undefined, base);
+        edit.active = true;
+        var btns = dlg.add("group");
+        btns.orientation = "row";
+        btns.alignment = ["right", "top"];
+        var okB = btns.add("button", undefined, "Rename");
+        var cancelB = btns.add("button", undefined, "Cancel");
+        okB.onClick = function () { dlg.close(1); };
+        cancelB.onClick = function () { dlg.close(0); };
+        var res = dlg.show();
+        if (res !== 1) { return; }
+        var name = trim(edit.text);
+        if (!name) { setStatus("The region keeps its name."); return; }
+        layer.name = REGION_PREFIX + name;
+        var s = regionSettingsOf(layer);
+        refreshRegions();
+        if (s) { selectRegionByToken(regionTokenOf(layer, s)); }
+        setStatus("Renamed to " + layer.name + ".");
+    }
+
+    /* Moves the selected region up or down in the layer stack (and the list). */
+    function moveRegion(dir) {
+        var layer = selectedRegionLayer();
+        if (!layer) { setStatus("Select a region in the list first."); return; }
+        var s = regionSettingsOf(layer);
+        var comp = layer.containingComp;
+        var idx = layer.index;
+        if (dir < 0 && idx > 1) {
+            layer.moveBefore(comp.layer(idx - 1));
+        } else if (dir > 0 && idx < comp.numLayers) {
+            layer.moveAfter(comp.layer(idx + 1));
+        }
+        refreshRegions();
+        if (s) { selectRegionByToken(regionTokenOf(layer, s)); }
+        setStatus((dir < 0 ? "Moved " : "Moved ") + layer.name + (dir < 0 ? " up." : " down."));
+    }
+
+    /* Re-runs the auto mask of the selected region with its stored settings. */
+    function updateAutoMask() {
+        var region = selectedRegionLayer();
+        if (!region) { setStatus("Select a region in the list first."); return; }
+        var s = regionSettingsOf(region);
+        if (!s || !s.auto) {
+            setStatus("That region has no auto mask. Create one in section 1, or use a manual area.");
+            return;
+        }
+        var comp = region.containingComp;
+        var footage = targetLayer();
+        if (!footage) { setStatus(NO_TARGET); return; }
+        var problem = setupProblem();
+        if (problem) { setStatus(problem); return; }
+        var imagePath;
+        try {
+            imagePath = sourceFrameForMask(footage);
+        } catch (e) {
+            setStatus(e && e.message ? e.message : String(e));
+            return;
+        }
+        var mode = s.auto.mode;
+        var grow = s.auto.grow === undefined ? 0 : s.auto.grow;
+        var feather = s.auto.feather === undefined ? 2 : s.auto.feather;
+        var invert = s.auto.invert === true;
+        setStatus("Re-making the " + mode + " mask on " + region.name + "... a few seconds.");
+        var matteFile = new File(MATTE_DIR.fsName + "/matte_" + mode + "_" + new Date().getTime() + ".png");
+        var args = shq(imagePath) + " -o " + shq(matteFile.fsName) + " --mode " + mode +
+                   " --grow=" + grow + " --feather " + feather + (invert ? " --invert" : "");
+        if (mode === "color" && HUE_FOR_CHANNEL[s.channel]) {
+            args += " --hue " + HUE_FOR_CHANNEL[s.channel] + " --hue-width 40 --min-sat 15";
+        }
+        var r = runPython("look_decomposer.automask", args);
+        if (!r.ok) {
+            setStatus("The mask could not be made.\n" + (r.error || ("exit code " + r.code)));
+            return;
+        }
+        var matteItem = app.project.importFile(new ImportOptions(matteFile));
+        app.beginUndoGroup("Look Decomposer: update auto mask");
+        try {
+            /* Find the old matte before adding the new one: the new layer gets the
+               same name, so the lookup must happen first. */
+            var old = findLayerByName(comp, s.auto.matte);
+            var mly = comp.layers.add(matteItem);
+            mly.name = s.auto.matte;
+            mly.position.setValue(footage.position.value);
+            mly.scale.setValue(footage.scale.value);
+            mly.anchorPoint.setValue(footage.anchorPoint.value);
+            mly.rotation.setValue(footage.rotation.value);
+            region.setTrackMatte(mly, TrackMatteType.LUMA);
+            if (old) { old.remove(); }
+        } finally {
+            app.endUndoGroup();
+        }
+        for (var li = 1; li <= comp.numLayers; li++) { comp.layer(li).selected = false; }
+        footage.selected = true;
+        setStatus("Updated the auto mask on " + region.name + " (" + mode + ").");
     }
 
     function findLayerByName(comp, name) {
@@ -1308,7 +1625,7 @@
        pass puts every row back in its starting position. */
 
     var SCROLL_GAP = 6;        // space between rows (the body's spacing)
-    var SCROLL_MARGIN = 8;     // space above the first row and below the last (body margins)
+    var SCROLL_MARGIN = 14;    // space above the first row and below the last (body margins)
     var SCROLL_OFFSCREEN = -10000;
     var SCROLL_DEFAULT_H = 380;  // body height until the real panel height is known
     /* Height of everything above and below a tab's body (header, working label,
@@ -1637,7 +1954,7 @@
         }
     }
 
-    /* Tab 1: the reference look, and the setup check. */
+    /* Tab 1: the reference look, its preview and history, presets, and setup. */
     function buildUploadTab(tab) {
         tab = scrollBodyOf(tab);
         setupTab(tab);
@@ -1645,12 +1962,38 @@
         var refSec = sectionOf(tab, "Reference look (the look to copy)");
         helpText(refSec, "Choose a still or a video with the look you want. It is analyzed, " +
                          "and the look is applied to the footage you choose with " +
-                         "'Use this composition'.", 52);
+                         "'Use this composition'.", 44);
         var refBtn = refSec.add("button", undefined, "Upload reference look...");
         refBtn.onClick = safe(uploadReference);
         stylePrimary(refBtn, false);
         ui.refLabel = refSec.add("statictext", undefined, "Reference: none yet");
-        ui.refResult = helpText(refSec, "", 90);
+        ui.refImage = refSec.add("image");
+        ui.refImage.alignment = ["fill", "top"];
+        ui.refImage.preferredSize = [240, 135];
+        ui.refImage.helpTip = "A preview of the analyzed reference.";
+        var histRow = refSec.add("group");
+        histRow.orientation = "row";
+        histRow.alignChildren = ["left", "center"];
+        histRow.alignment = ["fill", "top"];
+        histRow.add("statictext", undefined, "Recent:");
+        ui.refHistory = histRow.add("dropdownlist", undefined, ["none"]);
+        ui.refHistory.preferredSize = [200, 24];
+        ui.refHistory.selection = 0;
+        ui.refHistory.helpTip = "Analyzed references from this session. Pick one to re-apply it.";
+        ui.refHistory.onChange = safe(onHistorySelect);
+        ui.refResult = helpText(refSec, "", 84);
+        var presetRow = refSec.add("group");
+        presetRow.orientation = "row";
+        presetRow.alignment = ["fill", "top"];
+        var saveB = presetRow.add("button", undefined, "Save preset...");
+        saveB.onClick = safe(savePreset);
+        saveB.helpTip = "Write the current reference look to a JSON file.";
+        var loadB = presetRow.add("button", undefined, "Load preset...");
+        loadB.onClick = safe(loadPreset);
+        loadB.helpTip = "Use a saved look preset JSON as the reference.";
+        var allB = presetRow.add("button", undefined, "Apply to all");
+        allB.onClick = safe(applyReferenceToAll);
+        allB.helpTip = "Apply the reference to every footage layer in the open composition.";
 
         var setupSec = sectionOf(tab, "Setup");
         var check = setupSec.add("button", undefined, "Check setup");
@@ -1713,6 +2056,7 @@
         ui.regionList.alignment = ["fill", "top"];
         ui.regionList.preferredSize = [260, 70];
         ui.regionList.onChange = safe(onRegionSelect);
+        ui.regionList.helpTip = "Pick a region to select its layer in the timeline.";
         var buttons = listSec.add("group");
         buttons.orientation = "row";
         buttons.alignment = ["fill", "top"];
@@ -1722,6 +2066,27 @@
         remB.onClick = safe(removeRegion);
         var refreshB = buttons.add("button", undefined, "Refresh");
         refreshB.onClick = safe(refreshRegions);
+        var buttons2 = listSec.add("group");
+        buttons2.orientation = "row";
+        buttons2.alignment = ["fill", "top"];
+        var dupB = buttons2.add("button", undefined, "Duplicate");
+        dupB.onClick = safe(duplicateRegion);
+        dupB.helpTip = "Copy the selected region, its settings, and its mask.";
+        var renB = buttons2.add("button", undefined, "Rename...");
+        renB.onClick = safe(renameRegion);
+        var togB = buttons2.add("button", undefined, "On / off");
+        togB.onClick = safe(toggleRegion);
+        togB.helpTip = "Turn the selected region on or off.";
+        var buttons3 = listSec.add("group");
+        buttons3.orientation = "row";
+        buttons3.alignment = ["fill", "top"];
+        var upB = buttons3.add("button", undefined, "Move up");
+        upB.onClick = safe(function () { moveRegion(-1); });
+        var downB = buttons3.add("button", undefined, "Move down");
+        downB.onClick = safe(function () { moveRegion(1); });
+        var maskB = buttons3.add("button", undefined, "Update mask");
+        maskB.onClick = safe(updateAutoMask);
+        maskB.helpTip = "Re-run the auto mask of the selected region with its stored settings.";
 
         var areaSec = sectionOf(tab, "1. Choose the area");
 
@@ -1874,7 +2239,12 @@
         if (ui.workLabel) { ui.workLabel.text = label; }
         if (ui.adjustTarget) { ui.adjustTarget.text = label; }
         if (ui.gradeTarget) { ui.gradeTarget.text = label; }
-        if (ui.refLabel) { ui.refLabel.text = S.reference ? "Reference: " + S.reference.name : "Reference: none yet"; }
+        refreshReferenceUI();
+        if (ui.refResult && S.reference) {
+            ui.refResult.text = S.reference.text +
+                "\n\nConfidence: " + confidenceWord(S.reference.confidence) +
+                " (no original picture was given, so values are estimates).";
+        }
 
         var st = layer ? loadLookState(layer) : null;
         if (ui.strength) {
@@ -1926,13 +2296,17 @@
         ui: ui,
         fns: {
             setReference: setReference, addFootageFiles: addFootageFiles,
-            useThisComposition: useThisComposition,
+            useThisComposition: useThisComposition, applyReferenceToAll: applyReferenceToAll,
+            savePreset: savePreset, loadPreset: loadPreset, onHistorySelect: onHistorySelect,
+            refreshReferenceUI: refreshReferenceUI,
             applyReferenceTo: applyReferenceTo, targetLayer: targetLayer,
             sourceFrameForMask: sourceFrameForMask, createAutoRegion: createAutoRegion,
             renderLook: renderLook, loadLookState: loadLookState, effectiveSection: effectiveSection,
             onPartChange: onPartChange, onPartToggle: onPartToggle, onStrength: onStrength,
             onGradeChange: onGradeChange, removeLook: removeLook, resetGrade: resetGrade,
             addRegion: addRegion, removeRegion: removeRegion, refreshRegions: refreshRegions,
+            toggleRegion: toggleRegion, duplicateRegion: duplicateRegion, moveRegion: moveRegion,
+            updateAutoMask: updateAutoMask,
             refreshAll: refreshAll, regionSettingsOf: regionSettingsOf, renderRegion: renderRegion,
             videoFrame: videoFrame, importFootage: importFootage, setupProblem: setupProblem,
             applyScroll: applyScroll, showCurrentTab: showCurrentTab, scrollViews: scrollViews,

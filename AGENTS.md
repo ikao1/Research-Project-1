@@ -31,13 +31,25 @@ rebuilds its look inside After Effects as sliders the user can edit.
 ## Status (2026-11-23)
 Works, verified in After Effects 26.5 by reading rendered pixels and effect values:
 - Analyzer on the 10 test looks: mean normalized error 0.150 (`score.py`).
-- Panel v18: dark header band with title and version, a big always-visible "Use this
-  composition" button (starts the tool on the open comp: targets the selected or topmost
-  footage layer, applies a loaded reference when the layer has no look, selects it and
-  jumps to tab 2), tinted status box, colored section headings, accent-colored primary
-  buttons. Tab 1 now only uploads the reference look; footage is added by the user in
-  After Effects and picked up with "Use this composition" (the upload-footage section was
-  removed at the user's request).
+- Panel v19 (professional pass on tabs 1 and 4):
+  - Tab 1: reference preview thumbnail (PIL, `look_decomposer/thumbnail.py`), recent
+    references dropdown (session history, click to re-apply), Save/Load look preset JSON
+    files, and "Apply to all" (reference to every footage layer in the open comp).
+  - Tab 4: picking a region in the list selects its layer in the timeline (mask visible),
+    [on]/[off] prefix + On/off button, Duplicate (with its own matte for auto regions),
+    Rename... (small dialog), Move up/down in the layer stack, and Update mask (re-runs
+    the auto mask with stored settings). Fixed a real bug: Update mask named the new
+    matte before finding the old one, removed the new layer, and worked on a removed
+    layer - After Effects crashed twice on this (26.5 recovers from autosave; the open
+    project content changes). Also fixed Move up (was a no-op: moveAfter instead of
+    moveBefore). Scroll margin 8 -> 14 so the check's 10 px sampling reaches every row.
+  - Not driven by the agent (dialogs): Rename region, Save/Load preset file dialogs.
+    Tested live instead: setReference/thumbnail/history/apply-to-all, add/select/toggle/
+    duplicate/move/update-mask. All test comps, footage, mattes and solids were removed.
+- AE 26.5 has crashed three times this session (twice from the Update-mask bug, once
+  unexplained). After a crash it relaunches and auto-recovers an autosave, which may be
+  a different project than was open; the bridge then misses responses until dialogs are
+  dismissed. Re-verify the open project after any AE restart.
 - Upload reference and footage (the reference is applied at once), per-part sliders with
   checkboxes, Strength, Lumetri grade, regions (hue, value, saturation, opacity, blend),
   auto masks (Vision subject/people; luma and color ranges), icons with tooltips.

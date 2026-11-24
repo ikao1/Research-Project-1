@@ -297,3 +297,14 @@ M	README.md
 A	docs/demo.mp4
 M	docs/research-log.md
 
+==================================================================
+Date:    2026-11-24 02:05:39
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Panel v19: pro workflow for Upload (preview, history, presets, apply-to-all) and Regions (select, toggle, duplicate, rename, reorder, re-mask)
+Files:
+M	AGENTS.md
+M	docs/research-log.md
+M	look_decomposer/ae_panel/LookDecomposer.jsx
+A	look_decomposer/thumbnail.py
+
