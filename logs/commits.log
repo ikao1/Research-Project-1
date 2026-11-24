@@ -375,3 +375,11 @@ Message: Save the ground truth AE project state after tonight's crash recoveries
 Files:
 M	test_stills/ground_truth.aep
 
+==================================================================
+Date:    2026-11-24 11:51:12
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Add the third ground truth auto-save snapshot
+Files:
+A	test_stills/Auto-Save/ground_truth auto-save 3.aep
+
