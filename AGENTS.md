@@ -25,7 +25,14 @@ rebuilds its look inside After Effects as sliders the user can edit.
 - `ae_mcp/`: the After Effects bridge (AppleScript DoScript). `look_decomposer/ae_transport.py`
   sends JSX through it.
 - `look_decomposer/tools/panel_check.py`: reloads the panel in the open After Effects and
-  checks it. See Checklists.
+  checks it (9 checks: version, tabs, sliders, icons, scrolling on every tab).
+- `look_decomposer/tools/panel_feature_test.py`: drives every feature in the open After
+  Effects against a scratch comp (created and removed by the test): reference flow,
+  Use this composition, Apply to all, all 12 look sliders + toggles + Strength (effect
+  parameter readback), all 10 grade sliders, Remove/Reset, and regions (settings,
+  hue/value/sat/opacity/blend/mask, on/off, duplicate, move, auto mask, Update mask).
+  41 checks. Panel v21 adds icons to tab 1 (upload, clock, disk, folder, layers,
+  check_circle drawn by make_icons.py); tab titles have periods (1. Upload...).
 - `logs/commits.log` is written by a post-commit hook that amends each commit. This is normal.
 
 ## Status (2026-11-23)
@@ -116,9 +123,11 @@ Open or unverified:
 After changing the panel:
 1. `python3 look_decomposer/tools/panel_check.py`. Needs After Effects open with the panel
    installed. It must print "9 of 9 checks passed".
-2. For docked behavior, restart After Effects, then open Window > Look Decomposer. A docked
+2. `python3 look_decomposer/tools/panel_feature_test.py`. Must print "41 passed, 0 failed".
+   It creates and removes its own scratch comp; do not touch it while it runs.
+3. For docked behavior, restart After Effects, then open Window > Look Decomposer. A docked
    panel does not reload on its own.
-3. Stage only the intended paths. The post-commit hook amends the commit to add the log.
+4. Stage only the intended paths. The post-commit hook amends the commit to add the log.
 
 Driving After Effects from an agent: `look_decomposer/ae_transport.run_jsx(code)` or the
 `aftereffects_run` tool. Close any test windows and remove the items you created.

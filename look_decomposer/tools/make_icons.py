@@ -116,6 +116,39 @@ def grain(d, img):
             placed += 1
 
 
+def upload(d, img):
+    d.line([(48, 62), (48, 34)], fill=INK, width=6)
+    d.polygon([(33, 46), (63, 46), (48, 22)], fill=INK)
+    d.line([(20, 78), (76, 78)], fill=INK, width=6)
+
+
+def clock(d, img):
+    d.ellipse((16, 16, 80, 80), outline=INK, width=5)
+    d.line([(48, 48), (48, 30)], fill=INK, width=5)
+    d.line([(48, 48), (62, 56)], fill=INK, width=5)
+
+
+def disk(d, img):
+    d.rounded_rectangle((22, 14, 74, 82), radius=6, outline=INK, width=5)
+    d.rectangle((30, 26, 44, 40), fill=INK)
+    d.rectangle((34, 52, 62, 72), fill=INK)
+
+
+def folder(d, img):
+    d.polygon([(18, 30), (18, 78), (78, 78), (78, 38), (50, 38), (42, 30)], fill=INK)
+
+
+def layers(d, img):
+    d.polygon([(48, 14), (80, 30), (48, 46), (16, 30)], fill=INK)
+    d.polygon([(48, 42), (80, 58), (48, 74), (16, 58)], outline=INK, width=4)
+    d.polygon([(16, 58), (48, 74), (80, 58)], fill=INK)
+
+
+def check_circle(d, img):
+    d.ellipse((16, 16, 80, 80), outline=INK, width=5)
+    d.line([(32, 50), (44, 62), (66, 36)], fill=INK, width=7)
+
+
 def contrast(d, img):
     d.ellipse((14, 14, 82, 82), outline=INK, width=5)
     d.pieslice((14, 14, 82, 82), 90, 270, fill=DARK)
@@ -255,6 +288,8 @@ ICONS = {
     "gauge": gauge, "hue_shift": hue_shift, "value_half": value_half,
     "area": area, "edge_soft": edge_soft, "move_h": move_h, "move_v": move_v,
     "opacity": opacity, "blend": blend, "grow": grow,
+    "upload": upload, "clock": clock, "disk": disk, "folder": folder,
+    "layers": layers, "check_circle": check_circle,
 }
 
 

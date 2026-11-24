@@ -23,7 +23,7 @@
 (function (thisObj, LD_ROOT, LD_PYTHON) {
 
     var PANEL_TITLE = "Look Decomposer";
-    var PANEL_VERSION = 20;   // bump when the panel changes; older windows are not reused
+    var PANEL_VERSION = 21;   // bump when the panel changes; older windows are not reused
     var ENGINE_FILE = new File(LD_ROOT + "/ae/look_fx.jsx");
     var REPO_ROOT = new Folder(LD_ROOT).parent.fsName;
     var TEMP_DIR = new Folder(Folder.temp.fsName + "/LookDecomposer");
@@ -1954,6 +1954,17 @@
         }
     }
 
+    /* A small icon image, when the file exists; returns null otherwise. */
+    function iconImg(parent, name, size, tip) {
+        var f = new File(ICON_DIR + "/" + name + ".png");
+        if (!f.exists) { return null; }
+        var img = parent.add("image", undefined, f);
+        img.preferredSize = [size, size];
+        img.minimumSize = [size, size];
+        img.helpTip = tip;
+        return img;
+    }
+
     /* Tab 1: the reference look, its preview and history, presets, and setup. */
     function buildUploadTab(tab) {
         tab = scrollBodyOf(tab);
@@ -1963,20 +1974,33 @@
         helpText(refSec, "Choose a still or a video with the look you want. It is analyzed, " +
                          "and the look is applied to the footage you choose with " +
                          "'Use this composition'.", 40);
-        var refBtn = refSec.add("button", undefined, "Upload reference look...");
+        var upRow = refSec.add("group");
+        upRow.orientation = "row";
+        upRow.alignChildren = ["left", "center"];
+        upRow.alignment = ["fill", "top"];
+        iconImg(upRow, "upload", 20, "Upload a reference look.");
+        var refBtn = upRow.add("button", undefined, "Upload reference look...");
         refBtn.onClick = safe(uploadReference);
         stylePrimary(refBtn, false);
+        refBtn.preferredSize = [250, 30];
 
         var infoRow = refSec.add("group");
         infoRow.orientation = "row";
         infoRow.alignChildren = ["left", "center"];
         infoRow.alignment = ["fill", "top"];
+        iconImg(infoRow, "clock", 20, "References analyzed in this session.");
         ui.refLabel = infoRow.add("statictext", undefined, "Reference: none yet");
         ui.refLabel.graphics.font = FONT_SUB;
         ui.refLabel.alignment = ["fill", "center"];
-        var histLab = infoRow.add("statictext", undefined, "Recent:");
-        ui.refHistory = infoRow.add("dropdownlist", undefined, ["none"]);
-        ui.refHistory.preferredSize = [120, 24];
+
+        var histRow = refSec.add("group");
+        histRow.orientation = "row";
+        histRow.alignChildren = ["left", "center"];
+        histRow.alignment = ["fill", "top"];
+        iconImg(histRow, "folder", 20, "Recent references.");
+        histRow.add("statictext", undefined, "Recent:");
+        ui.refHistory = histRow.add("dropdownlist", undefined, ["none"]);
+        ui.refHistory.preferredSize = [180, 24];
         ui.refHistory.selection = 0;
         ui.refHistory.helpTip = "Analyzed references from this session. Pick one to re-apply it.";
         ui.refHistory.onChange = safe(onHistorySelect);
@@ -1990,27 +2014,37 @@
 
         var presetRow = refSec.add("group");
         presetRow.orientation = "row";
+        presetRow.alignChildren = ["left", "center"];
         presetRow.alignment = ["fill", "top"];
+        iconImg(presetRow, "disk", 18, "Write the current reference look to a JSON file.");
         var saveB = presetRow.add("button", undefined, "Save preset...");
         saveB.onClick = safe(savePreset);
         saveB.helpTip = "Write the current reference look to a JSON file.";
-        saveB.preferredSize = [92, 24];
+        saveB.preferredSize = [80, 24];
+        iconImg(presetRow, "folder", 18, "Use a saved look preset JSON as the reference.");
         var loadB = presetRow.add("button", undefined, "Load preset...");
         loadB.onClick = safe(loadPreset);
         loadB.helpTip = "Use a saved look preset JSON as the reference.";
-        loadB.preferredSize = [92, 24];
+        loadB.preferredSize = [80, 24];
+        iconImg(presetRow, "layers", 18, "Apply the reference to every footage layer.");
         var allB = presetRow.add("button", undefined, "Apply to all");
         allB.onClick = safe(applyReferenceToAll);
         allB.helpTip = "Apply the reference to every footage layer in the open composition.";
-        allB.preferredSize = [92, 24];
+        allB.preferredSize = [84, 24];
 
         var setupSec = sectionOf(tab, "Setup");
-        var check = setupSec.add("button", undefined, "Check setup");
+        var checkRow = setupSec.add("group");
+        checkRow.orientation = "row";
+        checkRow.alignChildren = ["left", "center"];
+        checkRow.alignment = ["fill", "top"];
+        iconImg(checkRow, "check_circle", 18, "Check the panel setup.");
+        var check = checkRow.add("button", undefined, "Check setup");
         check.onClick = safe(function () {
             var problem = setupProblem();
             setStatus(problem ? problem : "Ready. Upload a reference look, then open a " +
                        "composition and press 'Use this composition'.");
         });
+        check.preferredSize = [140, 24];
     }
 
     /* Tab 2: the look on the working footage. One section per kind of change. */
@@ -2332,7 +2366,7 @@
             onGradeChange: onGradeChange, removeLook: removeLook, resetGrade: resetGrade,
             addRegion: addRegion, removeRegion: removeRegion, refreshRegions: refreshRegions,
             toggleRegion: toggleRegion, duplicateRegion: duplicateRegion, moveRegion: moveRegion,
-            updateAutoMask: updateAutoMask,
+            updateAutoMask: updateAutoMask, onRegionChange: onRegionChange,
             refreshAll: refreshAll, regionSettingsOf: regionSettingsOf, renderRegion: renderRegion,
             videoFrame: videoFrame, importFootage: importFootage, setupProblem: setupProblem,
             applyScroll: applyScroll, showCurrentTab: showCurrentTab, scrollViews: scrollViews,

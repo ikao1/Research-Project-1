@@ -176,3 +176,22 @@ Record findings, hypotheses, and experiment results here.
   Shape, Colors and Blend.
 - **Result:** `panel_check.py` 9 of 9.
 - **Next step:** visual check in the docked panel after a restart.
+
+### 2026-11-24 — Icons on Upload, and a full feature test (41 checks)
+- **Goal:** icons in tab 1, a nicer look, and proof that every slider and
+  function works.
+- **Method:** six new icons (upload, clock, disk, folder, layers,
+  check_circle) drawn by make_icons.py and placed in tab 1 rows. Tab titles
+  got periods (1. Upload...). A new tool, `tools/panel_feature_test.py`,
+  drives every feature in live After Effects against a scratch comp it creates
+  and removes: reference analysis/thumbnail/history, Use this composition,
+  Apply to all, all 12 look sliders with effect-parameter readback (Exposure
+  stops, blur radius, grain, vignette, split-tone strength), part toggles,
+  Strength scaling (1.2 -> 0.6 stops at 50%), all 10 grade sliders with
+  Lumetri readback, Remove/Reset grade, and the full region set (settings,
+  hue/value/sat effects, opacity, blend, mask, on/off, duplicate, move,
+  auto mask, Update mask).
+- **Result:** 9 of 9 panel checks and 41 of 41 feature checks pass. The only
+  test fix needed was the BlendingMode comparison (enum, not string).
+- **Next step:** none pending on the panel; drive the dialog buttons
+  (Rename, Save/Load preset) once by hand.

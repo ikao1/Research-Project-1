@@ -326,3 +326,21 @@ Files:
 M	look_decomposer/ae_panel/LookDecomposer.jsx
 M	look_decomposer/tools/panel_check.py
 
+==================================================================
+Date:    2026-11-24 02:34:57
+Branch:  main
+Author:  ikao1 <332255067+ikao1@users.noreply.github.com>
+Message: Panel v21: Upload icons, and a 41-check feature test proving every slider and function works
+Files:
+M	AGENTS.md
+M	docs/research-log.md
+M	look_decomposer/ae_panel/LookDecomposer.jsx
+A	look_decomposer/ae_panel/icons/check_circle.png
+A	look_decomposer/ae_panel/icons/clock.png
+A	look_decomposer/ae_panel/icons/disk.png
+A	look_decomposer/ae_panel/icons/folder.png
+A	look_decomposer/ae_panel/icons/layers.png
+A	look_decomposer/ae_panel/icons/upload.png
+M	look_decomposer/tools/make_icons.py
+A	look_decomposer/tools/panel_feature_test.py
+
